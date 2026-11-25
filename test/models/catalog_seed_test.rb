@@ -43,13 +43,20 @@ class CatalogSeedTest < ActiveSupport::TestCase
   end
 
   test "catalog schema rejects invalid types and durations before importing" do
-    [{"title" => 123}, {"duration" => "3:99"}, {"duration" => "3:19\nextra"}].each do |invalid|
+    [{"title" => 123}, {"duration" => "3:99"}, {"duration" => "1:99:59"}, {"duration" => "3:19\nextra"}].each do |invalid|
       record = @artist.merge("tracks" => [@track.merge(invalid)])
 
       error = assert_raises(ArgumentError) { @seed.import([record]) }
       assert_includes error.message, "/0/tracks/0/#{invalid.keys.first}"
     end
     assert_empty Artist.all
+  end
+
+  test "long mixes can use either minutes alone or hours and minutes" do
+    first = @track.merge("duration" => "99:59")
+    second = @track.merge("youtube_id" => "b1234567890", "duration" => "1:39:59")
+    @seed.import([@artist.merge("tracks" => [first, second])])
+    assert_eql ["99:59", "1:39:59"], Track.order(:id).pluck(:duration)
   end
 
   test "a track needs its own genre and credit when no artist defaults are supplied" do
