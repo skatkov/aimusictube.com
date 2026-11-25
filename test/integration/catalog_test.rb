@@ -39,8 +39,19 @@ class CatalogTest < ActionDispatch::IntegrationTest
     assert_select "main a[href=?] strong", artist_path(@artist), @artist.name
     get artist_path(@artist)
     assert_select ".track h2", @track.title
-    get track_path(@track)
+    get watch_path(@track.youtube_id)
     assert_select "a[href=?]", @track.evidence_url, "View disclosure source"
+  end
+
+  test "numeric bookmarks redirect to the stable watch URL, including for numeric YouTube IDs" do
+    @track.update!(youtube_id: "00012345678")
+    get "/tracks/#{@track.id}"
+    assert_response :moved_permanently
+    assert_redirected_to "/watch/00012345678"
+    follow_redirect!
+    assert_select "main h1", @track.title
+    get "/watch/00000000000"
+    assert_response :not_found
   end
 
   test "StarSinger artists with the same name and publisher keep distinct discographies" do
@@ -70,10 +81,10 @@ class CatalogTest < ActionDispatch::IntegrationTest
     assert_select ".track", count: TracksController::PAGE_SIZE
     assert_select ".result-count", /#{TracksController::PAGE_SIZE + 1} results/
     assert_select "nav a[rel=next][href=?]", root_path(filters.merge(page: 2))
-    assert_select ".track-link[href=?]", track_path(@track), count: 0
+    assert_select ".track-link[href=?]", watch_path(@track.youtube_id), count: 0
     get root_path(filters.merge(page: 2))
     assert_select ".track", count: 1
-    assert_select ".track-link[href=?]", track_path(@track)
+    assert_select ".track-link[href=?]", watch_path(@track.youtube_id)
     assert_select "nav a[rel=next]", count: 0
   end
 
@@ -120,7 +131,7 @@ class CatalogTest < ActionDispatch::IntegrationTest
 
   test "most played ranks site play clicks and is independent of private history" do
     favorite = @track.dup.tap { |t| t.update!(youtube_id: "BcDe2345_-z", title: "Zebra") }
-    get track_path(@track)
+    get watch_path(@track.youtube_id)
     assert_equal 0, @track.reload.play_count
     post play_track_path(favorite), headers: { "Turbo-Frame" => "player_track_#{favorite.id}" }
     post play_track_path(favorite)
@@ -156,7 +167,7 @@ class CatalogTest < ActionDispatch::IntegrationTest
       get root_path
       assert_select ".track .video-meta", @track.genre
       assert_select ".track .kind", count: 0
-      get track_path(@track)
+      get watch_path(@track.youtube_id)
       assert_select "#disclosure", "AI disclosure"
       assert_select ".description p", @track.evidence
       assert_select ".description a[href=?]", @track.evidence_url
@@ -182,14 +193,14 @@ class CatalogTest < ActionDispatch::IntegrationTest
   end
 
   test "play loads an embedded player on demand and direct opens still redirect" do
-    get track_path(@track)
+    get watch_path(@track.youtube_id)
     assert_select "iframe", count: 0
     assert_select "button.poster[aria-label=?] .play-badge", "Play #{@track.title}", text: "" do
       assert_select "svg[aria-hidden=true] use[href='/icons.svg#play']"
     end
     assert_select "button", "Watch on YouTube"
     assert_no_difference "Play.count" do
-      get track_path(@track)
+      get watch_path(@track.youtube_id)
       get history_path
     end
     player = "player_track_#{@track.id}"
@@ -243,11 +254,11 @@ class CatalogTest < ActionDispatch::IntegrationTest
     post playlists_path, params: { playlist: { name: " Night drive " } }
     playlist = Playlist.find_by!(name: "Night drive")
     assert_redirected_to playlist
-    get track_path(@track)
+    get watch_path(@track.youtube_id)
     assert_select "select[name=playlist_id] option", "Night drive"
     2.times do
       post track_playlist_entries_path(@track), params: { playlist_id: playlist.id }
-      assert_redirected_to @track
+      assert_redirected_to watch_path(@track.youtube_id)
     end
     entry = playlist.playlist_entries.sole
     get playlist_path(playlist)
@@ -276,7 +287,7 @@ class CatalogTest < ActionDispatch::IntegrationTest
   end
 
   test "creating a first playlist from a track saves that track and preserves context on validation errors" do
-    get track_path(@track)
+    get watch_path(@track.youtube_id)
     assert_select "a[href=?]", playlists_path(track_id: @track.id), "Create a playlist for this track"
     get playlists_path(track_id: @track.id)
     assert_select "input[name=track_id][value=?]", @track.id.to_s

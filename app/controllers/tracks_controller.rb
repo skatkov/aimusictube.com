@@ -25,8 +25,12 @@ class TracksController < ApplicationController
     @empty = "No tracks match. Try another search or AI filter."
   end
 
+  def legacy
+    redirect_to watch_path(Track.find(params[:id]).youtube_id), status: :moved_permanently
+  end
+
   def show
-    @track = Track.find(params[:id])
+    @track = Track.find_by!(youtube_id: params[:youtube_id])
     @liked = Like.exists?(browser_key: browser_key, track: @track)
     @playlists = playlists.order(:name)
     @more_tracks = Track.where.not(id: @track.id).includes(:artist)

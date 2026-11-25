@@ -8,7 +8,9 @@ Rails.application.routes.draw do
   pull_request = "https://github.com/skatkov/aimusictube.com/compare?expand=1"
   direct(:artist_pull_request) { pull_request }
   get "artist-submissions/new", to: redirect(pull_request)
-  resources :tracks, only: :show do
+  get "watch/:youtube_id", to: "tracks#show", as: :watch, constraints: { youtube_id: /[A-Za-z0-9_-]{11}/ }
+  get "tracks/:id", to: "tracks#legacy", as: :track, constraints: { id: /\d+/ }
+  resources :tracks, only: [] do
     post :play, on: :member
     resource :like, only: %i[create destroy]
     resources :playlist_entries, only: :create

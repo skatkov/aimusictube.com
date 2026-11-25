@@ -19,6 +19,8 @@ Select the play icon on a track page to load the embedded player. If an upload o
 
 ## Catalog
 
+Watch links use the YouTube video ID (`/watch/VIDEO_ID`) and work across independent installs. Old numeric links redirect using the original database. When moving the app, restore the SQLite database and keep the same Rails cookie encryption key; a fresh seed cannot restore numeric bookmarks or private libraries.
+
 The seed covers 2,148 uploads from 335 artists and channels, including [Saindra’s “Queso”](https://saindra.gallery/en/discography/) and 728 entries under **Mixes**. It includes dedicated uploads for all tracks on YACHT’s *Chain Tripping*, Taryn Southern’s *I AM AI*, SKYGGE’s *Hello World*, and Frostbite Orckings’ *The Orcish Eclipse*. The catalog is curated, not a complete discography for every artist. Each upload has a note and a source on its detail page:
 
 - **AI-generated:** the source credits AI for generating the music or a defining part such as the lead vocal. Human-written lyrics do not rule this out.
