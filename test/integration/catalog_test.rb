@@ -128,30 +128,16 @@ class CatalogTest < ActionDispatch::IntegrationTest
     assert_select ".search input[name=sort][value=most_played]"
   end
 
-  test "artist suggestions can be submitted privately from Artists and About" do
+  test "artist suggestions open a GitHub pull request from Artists, About, and old bookmarks" do
+    github = "https://github.com/skatkov/aimusictube.com/compare?expand=1"
     [ artists_path, about_path ].each do |path|
       get path
-      assert_select "main a[href=?]", new_artist_submission_path, "Suggest an artist"
+      assert_select "main a[href=?]", github, /pull request/i
     end
-    get new_artist_submission_path
-    assert_select "form[action=?] input[type=url][required]", artist_submissions_path
-    assert_no_difference "ArtistSubmission.count" do
-      post artist_submissions_path, params: { artist_submission: { youtube_url: "https://youtube.com.example.org/@artist", notes: "From an interview" } }
-    end
-    assert_response :unprocessable_content
-    assert_select "[role=alert]", "Enter a YouTube video or channel link."
-    assert_select "textarea", "From an interview"
-    assert_not ArtistSubmission.new(youtube_url: "https://www.youtube.com/watch?feature=shared").valid?
-    assert ArtistSubmission.new(youtube_url: "https://www.youtube.com/@森林/videos").valid?
-    assert ArtistSubmission.new(youtube_url: "https://music.youtube.com/watch?list=album&v=AbCd1234_-z").valid?
-    assert_no_difference [ "Artist.count", "Track.count" ] do
-      assert_difference "ArtistSubmission.count" do
-        post artist_submissions_path, params: { artist_submission: { youtube_url: " https://youtu.be/AbCd1234_-z " } }
-      end
-    end
-    assert_equal "https://youtu.be/AbCd1234_-z", ArtistSubmission.sole.youtube_url
-    follow_redirect!
-    assert_select "[role=status]", /saved for review/
+    get "/artist-submissions/new"
+    assert_redirected_to github
+    post "/artist-submissions"
+    assert_response :not_found
   end
 
   test "tracks without an audio label keep their genre and evidence" do

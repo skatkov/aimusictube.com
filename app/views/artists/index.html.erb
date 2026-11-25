@@ -6,7 +6,7 @@
   <% else %>
     <%= link_to "Browse StarSinger artists", artists_path(source: "starsinger"), class: "text-link" %> ·
   <% end %>
-  <%= link_to "Suggest an artist", new_artist_submission_path, class: "text-link" %>
+  <%= link_to "Suggest an artist via GitHub pull request", artist_pull_request_url, class: "text-link" %>
 </header>
 <ul class="index-list artist-list">
   <% @artists.each do |artist| %>

@@ -39,7 +39,7 @@ The same snapshot includes the Videos tabs of [Persian Instrumental Music](https
 
 [Most played](http://localhost:3000/?sort=most_played) ranks uploads by clicks on the embedded player’s play button or **Watch on YouTube**. Each click increments an aggregate on the track, independent of private history. The initial count includes one click per retained browser/track history entry; earlier repeat clicks weren’t recorded. Neither page visits nor YouTube statistics affect the ranking.
 
-**Artist suggestions:** the [submission form](http://localhost:3000/artist-submissions/new) is linked from About and Artists. It saves a YouTube link and optional evidence privately in SQLite. To review the inbox locally, run `bin/rails runner 'pp ArtistSubmission.order(:id).pluck(:id, :youtube_url, :notes)'`. After checking a suggestion, add qualifying music to the seed using the usual process, then remove the reviewed suggestion in `bin/rails console` with `ArtistSubmission.find(id).destroy!`.
+**Suggest an artist:** add the catalog entry on a branch in your fork, then [open a pull request on GitHub](https://github.com/skatkov/aimusictube.com/compare?expand=1). Include the YouTube video or channel link and a source for any AI music credit. Artists and About link to the same page. Suggestions submitted through the old form remain private in the local `artist_submissions` table.
 
 ## Checks
 

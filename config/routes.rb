@@ -5,7 +5,9 @@ Rails.application.routes.draw do
   get "about", to: "pages#about"
   get "tags", to: "pages#tags"
   resources :artists, only: %i[index show]
-  resources :artist_submissions, path: "artist-submissions", only: %i[new create]
+  pull_request = "https://github.com/skatkov/aimusictube.com/compare?expand=1"
+  direct(:artist_pull_request) { pull_request }
+  get "artist-submissions/new", to: redirect(pull_request)
   resources :tracks, only: :show do
     post :play, on: :member
     resource :like, only: %i[create destroy]
