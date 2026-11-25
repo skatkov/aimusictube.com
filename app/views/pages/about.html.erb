@@ -20,9 +20,9 @@
 
   <section>
     <h2>Know an artist we’re missing?</h2>
-    <p><%= link_to "Open a pull request on GitHub", artist_pull_request_url, class: "text-link" %> to suggest an artist. Include a link to their music on YouTube and a source for any AI music credit.</p>
+    <p><%= link_to "Edit db/catalog.json on GitHub", artist_catalog_edit_url, class: "text-link" %> and open a pull request to suggest an artist. Include a link to their music on YouTube and a source for any AI music credit.</p>
   </section>
 
   <p>AI Music Tube isn’t affiliated with or endorsed by YouTube or Google.</p>
-  <p><%= link_to "Browse the catalog", root_path, class: "text-link" %></p>
+  <p><%= link_to "Browse the catalog", root_path, class: "text-link" %> · <%= link_to "View the source on GitHub", source_repository_url, class: "text-link" %></p>
 </article>

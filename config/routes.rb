@@ -5,9 +5,11 @@ Rails.application.routes.draw do
   get "about", to: "pages#about"
   get "tags", to: "pages#tags"
   resources :artists, only: %i[index show]
-  pull_request = "https://github.com/skatkov/aimusictube.com/compare?expand=1"
-  direct(:artist_pull_request) { pull_request }
-  get "artist-submissions/new", to: redirect(pull_request)
+  repository = "https://github.com/skatkov/aimusictube.com"
+  catalog_editor = "#{repository}/edit/main/db/catalog.json"
+  direct(:source_repository) { repository }
+  direct(:artist_catalog_edit) { catalog_editor }
+  get "artist-submissions/new", to: redirect(catalog_editor)
   get "watch/:youtube_id", to: "tracks#show", as: :watch, constraints: { youtube_id: /[A-Za-z0-9_-]{11}/ }
   resolve("Track") { |track, options| route_for(:watch, track.youtube_id, options) }
   get "tracks/:id", to: "tracks#legacy", as: :track, constraints: { id: /\d+/ }

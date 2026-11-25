@@ -2,17 +2,25 @@ require "tmpdir"
 
 Dir.mktmpdir("ai-music-tube-ci") do |dir|
   ENV["RAILS_ENV"] = "test"
-  ENV["DATABASE_URL"] = "sqlite3:#{dir}/tests.sqlite3"
 
   CI.run do
     step "Dependencies", "bundle check"
-    step "Style: Ruby", "bin/rubocop"
+    step "Style: Standard Ruby", "bundle exec standardrb --no-fix"
+    step "Quality: Reek", "bundle exec reek ."
+    step "Quality: Rubydex", "bundle exec ruby script/check_rubydex.rb"
     step "Security: Importmap vulnerability audit", "bin/importmap audit"
-    step "Test schema", "bin/rails db:schema:load"
-    step "Tests: Rails", "bin/rails test"
-
     ENV["DATABASE_URL"] = "sqlite3:#{dir}/seeds.sqlite3"
     step "Seed schema", "bin/rails db:schema:load"
-    step "Tests: Reseeding preserves libraries", "bin/rails runner script/check_seeds.rb"
+    step "Catalog: Validate JSON and check reseeding preserves libraries", "bin/rails runner script/check_seeds.rb"
+    unless ENV["CATALOG_BASE"].to_s.match?(/\A0*\z/)
+      step "Catalog: Preserve existing upload identities", "bundle exec ruby script/check_catalog_revision.rb"
+    end
+
+    ENV["DATABASE_URL"] = "sqlite3:#{dir}/tests.sqlite3"
+    step "Test schema", "bin/rails db:schema:load"
+    step "Tests: Minitest and SimpleCov", "env SIMPLECOV=1 bin/rails test"
+    if ARGV.include?("--mutant") && success?
+      step "Tests: Mutant", "bundle exec mutant run --selection context_map"
+    end
   end
 end

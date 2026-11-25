@@ -1,3 +1,4 @@
+# Renders the catalog statistics and tag directory.
 class PagesController < ApplicationController
   def about
     @track_count = Track.count
@@ -8,7 +9,7 @@ class PagesController < ApplicationController
   def tags
     @query = params[:q].to_s.strip.first(100)
     @sort = "most_played" if params[:sort] == "most_played"
-    @disclosure_counts = Track.group(:kind).count
-    @genre_counts = Track.group(:genre).order(:genre).count
+    @disclosure_counts = Track.group(:kind).size
+    @genre_counts = Track.group(:genre).order(:genre).size
   end
 end

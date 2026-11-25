@@ -7,7 +7,7 @@
     <div class="video-copy">
       <h2><%= link_to track.title, track, class: "track-link" %></h2>
       <p><%= link_to track.artist.name, artist_path(track.artist), class: "byline" %></p>
-      <p class="video-meta"><%= track.genre %><%= render "tracks/kind", track: track %></p>
+      <p class="video-meta"><%= track.genre %></p>
       <% if @sort == "most_played" %><p><%= pluralize number_with_delimiter(track.play_count), "site play" %></p><% end %>
     </div>
   </div>

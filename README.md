@@ -33,6 +33,10 @@ Edit **[`db/catalog.json`](db/catalog.json)** to add artists or recordings, then
 
 Preserve the existing order and `starsinger_id` values: distinct artists can share a channel. If an artist appears in two blocks, keep the name, channel, profile ID, and avatar identical in both; their tracks can have different defaults. Seeding updates by YouTube ID without resetting libraries. An unknown field, conflicting artist details, or a duplicate upload rolls back the whole import. Seeding does not remove old entries or check links on a schedule. If a Topic channel has no Videos tab, search for its artist and release titles, then check the exact public upload and the AI evidence separately.
 
+The [catalog JSON Schema](db/catalog.schema.json) checks the structure, field types, ID formats, and required genre and credit before the seed writes anything. Run `bin/ci` to validate the actual file and import it twice into a disposable database. These checks do not verify that YouTube still serves the upload or that a source supports its credit.
+
+CI also compares upload IDs and artist ownership with the base revision. Additions and metadata edits are fine; removing an existing upload, replacing its ID, or moving it to another artist requires a separately reviewed data migration. Run `CATALOG_BASE=origin/main bin/ci` to check a proposed revision locally.
+
 [Kelly Boesch’s music films](https://www.youtube.com/playlist?list=PLT26wpyuKBpMf99VVaNuCmYeUXcTOQEwJ) and the multi-channel [AI Covers of Popular Songs playlist](https://www.youtube.com/playlist?list=PLReI40KGodv6r0WRDxNJwM1MkBcoN3Gox) are discovery sources for the catalog. The source note for Moon Tunes’ [*Whiskey Blues* mix](https://www.youtube.com/watch?v=knFceIUXCXU) quotes the watch page’s “How this was made” panel.
 
 The November 25, 2026 snapshot includes all 84 videos on [Moon Tunes’ Videos tab](https://www.youtube.com/@moontunes1/videos) and all 296 mixes on [Oldies Jazz Lounge’s Videos tab](https://www.youtube.com/@OldiesJazzLounge/videos). SerpApi YouTube Music search results were matched by video ID to the paginated SerpApi YouTube Channel listings, and each upload was checked with YouTube oEmbed. Moon Tunes’ five Shorts are not counted as separate recordings. Oldies Jazz Lounge’s mixes are listed as reader picks; the channel does not give a channel-wide AI music credit.
@@ -43,10 +47,19 @@ The same snapshot includes the Videos tabs of [Persian Instrumental Music](https
 
 [Most played](http://localhost:3000/?sort=most_played) ranks uploads by clicks on the embedded player’s play button or **Watch on YouTube**. Each click increments an aggregate on the track, independent of private history. The initial count includes one click per retained browser/track history entry; earlier repeat clicks weren’t recorded. Neither page visits nor YouTube statistics affect the ranking.
 
-**Suggest an artist:** add the catalog entry on a branch in your fork, then [open a pull request on GitHub](https://github.com/skatkov/aimusictube.com/compare?expand=1). Include the YouTube video or channel link and a source for any AI music credit. Artists and About link to the same page. Suggestions submitted through the old form remain private in the local `artist_submissions` table.
+**Suggest an artist:** [edit `db/catalog.json` on GitHub](https://github.com/skatkov/aimusictube.com/edit/main/db/catalog.json), then open a pull request. Include the YouTube video or channel link and a source for any AI music credit. Artists and About link to the same editor. Suggestions submitted through the old form remain private in the local `artist_submissions` table.
 
 ## Checks
 
-Run `bin/ci` before opening a pull request. It runs the Rails tests, RuboCop, and the import-map audit, then imports the full catalog twice to check that IDs and private libraries survive reseeding. It uses disposable SQLite databases.
+Run `bin/ci` before opening a pull request. It checks Standard Ruby, Reek, Rubydex, and import-map dependencies first. It then checks that the full catalog can be reimported without changing IDs or private libraries, and runs Minitest with 100% line and branch coverage required in `app`, `lib`, and the catalog importer. It uses disposable SQLite databases.
+
+GitHub Actions runs `bin/ci --mutant`. Mutant runs last, only after all earlier checks pass, and reuses the coverage map from that test run. It finds subjects by source file in `app`, `lib`, and `db/catalog_seed.rb`, not by a list of classes. Plain `bin/rails test` and focused test runs do not enforce full-suite coverage. To iterate on mutations locally:
+
+```sh
+RAILS_ENV=test SIMPLECOV=1 bin/rails db:test:prepare test
+bundle exec mutant run --selection context_map
+```
+
+Add `--fail-fast` when working through survivors one at a time. Use `assert_true`, `assert_false`, or `assert_eql` when the exact value or type is part of the contract.
 
 Not deployed.

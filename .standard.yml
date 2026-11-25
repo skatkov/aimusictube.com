@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://www.rubyschema.org/standard.json
+%YAML 1.1
+---
+fix: true
+parallel: true
+
+ignore:
+  - "vendor/**/*"
+
+plugins:
+  - standard-rails
+  - standard-minitest
+  - standard-performance
+
+extend_config:
+  - .standard-rubocop.yml

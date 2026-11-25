@@ -1,9 +1,12 @@
+# Browses tracks and records playback requests.
 class TracksController < ApplicationController
   def index
     @query = params[:q].to_s.strip.first(100)
-    genre = params[:genre] == "Jazz mixes" ? "Mixes" : params[:genre]
-    @genre = genre if genre.is_a?(String) && Track.exists?(genre: genre)
-    @kind = params[:kind] if Track::LABELS.key?(params[:kind])
+    genre = params.permit(:genre)[:genre]
+    genre = "Mixes" if genre == "Jazz mixes"
+    @genre = genre if genre.present? && Track.exists?(genre: genre)
+    kind = params[:kind]
+    @kind = kind if Track::LABELS.key?(kind)
     @sort = "most_played" if params[:sort] == "most_played"
     @tracks = Track.includes(:artist)
     @tracks = @tracks.where(genre: @genre) if @genre
@@ -21,20 +24,20 @@ class TracksController < ApplicationController
   end
 
   def legacy
-    redirect_to Track.find(params[:id]), status: :moved_permanently
+    redirect_to Track.find(params.expect(:id)), status: :moved_permanently
   end
 
   def show
-    @track = Track.find_by!(youtube_id: params[:youtube_id])
+    @track = Track.find_by!(youtube_id: params.expect(:youtube_id))
     @liked = Like.exists?(browser_key: browser_key, track: @track)
     @playlists = playlists.order(:name)
-    @more_tracks = Track.where.not(id: @track.id).includes(:artist)
+    @more_tracks = Track.excluding(@track).includes(:artist)
       .in_order_of(:artist_id, [ @track.artist_id ], filter: false)
       .in_order_of(:genre, [ @track.genre ], filter: false).order(:title).limit(8)
   end
 
   def play
-    track = Track.find(params[:id])
+    track = Track.find(params.expect(:id))
     Track.transaction do
       Play.upsert({ browser_key: browser_key, track_id: track.id, opened_at: Time.current },
         unique_by: %i[browser_key track_id])

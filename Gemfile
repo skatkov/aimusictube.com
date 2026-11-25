@@ -14,6 +14,7 @@ gem "importmap-rails"
 gem "turbo-rails"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "stimulus-rails"
+gem "json_schemer", "~> 2.5", require: false
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
@@ -28,8 +29,20 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
-  gem "rubocop-rails-omakase", require: false
+  gem "mutant", ">= 0.17.0", require: false
+  gem "mutant-minitest", ">= 0.17.0", require: false
+  gem "rubydex", require: false
+  gem "standard", ">= 1.54", require: false
+  gem "standard-performance", require: false
+  gem "standard-rails", require: false
+  gem "standard-minitest", require: false
+  gem "reek", require: false
+end
+
+group :test do
+  gem "minitest", "~> 6.0"
+  gem "minitest-strict"
+  gem "simplecov", ">= 1.2.0", require: false
 end
 
 group :development do

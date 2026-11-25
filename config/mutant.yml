@@ -1,0 +1,25 @@
+usage: commercial
+
+integration:
+  name: minitest
+
+includes:
+  - app
+  - lib
+  - test
+
+environment_variables:
+  RAILS_ENV: test
+
+requires:
+  - ./test/support/mutant.rb
+  - ./db/catalog_seed.rb
+
+matcher:
+  subjects:
+    - source:app/**/*.rb
+    - source:lib/**/*.rb
+    - source:db/catalog_seed.rb
+
+hooks:
+  - ./config/mutant.rb

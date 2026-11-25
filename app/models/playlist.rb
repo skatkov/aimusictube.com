@@ -1,3 +1,4 @@
+# A named collection owned by one browser.
 class Playlist < ApplicationRecord
   has_many :playlist_entries, dependent: :delete_all
 
