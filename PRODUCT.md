@@ -16,7 +16,7 @@ Help listeners discover artists making music with AI, find tracks, and keep a pr
 
 ## Capabilities and constraints
 
-- Show **AI-generated** and **AI-assisted** labels when there is evidence about the audio or composition. Keep upload-wide disclosures and reader picks without audio evidence in the catalog with a source note and no label.
+- Show **AI-generated** and **AI-assisted** labels on track pages when there is evidence about the audio or composition. Keep upload-wide disclosures and reader picks without audio evidence in the catalog with a source note and no label.
 - Play on the track page through the official YouTube embed, with a direct link-out fallback. The app does not host audio or video.
 - Likes, history, and playlists belong to the current browser; no login or cross-device sync. History records a play click or a direct open, not listening time.
 - Start with a curated catalog and test locally before considering deployment.

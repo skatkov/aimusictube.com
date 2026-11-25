@@ -87,7 +87,7 @@ Thumbnails use a 16:9 crop and a 12px radius. Pill shapes are for actions; use t
 
 ## Components
 
-- **Feed:** Put duration in the bottom-right corner of each thumbnail and put the title, artist, genre, and disclosure label below.
+- **Feed:** Put duration in the bottom-right corner of each thumbnail and put the title, artist, and genre below.
 - **Player:** Start with a poster and a centered, icon-only play control. Activating it loads the official YouTube iframe. Keep **Watch on YouTube** available outside the player.
 - **Disclosure:** Keep the label in text, not just color. Link to the evidence or the source checked on the track page.
 - **Footer:** Center the builder credit, X profile link, and YouTube/Google independence disclosure together. Let them wrap on narrow screens.

@@ -6,7 +6,7 @@
 
 **Story:** Scan the artwork, check who made the music and what’s known about AI use, then play it on the page or save it in a private library.
 
-**First viewport:** A fixed 56px masthead over a collapsible desktop sidebar. Discover, Most played, and Browse tags precede the thumbnail grid; the full tag cloud lives on Tags. A duration sits inside the image; a channel avatar, title, artist, genre and disclosure sit below. Phone navigation is a drawer.
+**First viewport:** A fixed 56px masthead over a collapsible desktop sidebar. Discover, Most played, and Browse tags precede the thumbnail grid; the full tag cloud lives on Tags. A duration sits inside the image; a channel avatar, title, artist, and genre sit below. AI disclosures are on track pages. Phone navigation is a drawer.
 
 **Form:** seed: none (pinned). “Please keep design familiarity to youtube - like hackertube.org did. It's crucial! It should look and feel like youtube.”
 

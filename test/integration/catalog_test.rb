@@ -11,7 +11,8 @@ class CatalogTest < ActionDispatch::IntegrationTest
     get root_path, params: { q: "test artist" }
     assert_response :success
     assert_select ".track h2", @track.title
-    assert_select ".track .kind", "AI-assisted"
+    assert_select ".track .video-meta", @track.genre
+    assert_select ".track .kind", count: 0
 
     get root_path, params: { q: "%" }
     assert_select ".track h2", @track.title
@@ -43,6 +44,7 @@ class CatalogTest < ActionDispatch::IntegrationTest
     get artist_path(@artist)
     assert_select ".track h2", @track.title
     get watch_path(@track.youtube_id)
+    assert_select "#disclosure .kind", "AI-assisted"
     assert_select "a[href=?]", @track.evidence_url, "View disclosure source"
   end
 
