@@ -5,13 +5,13 @@ class TracksController < ApplicationController
     @genre = genre if genre.is_a?(String) && Track.exists?(genre: genre)
     @kind = params[:kind] if Track::LABELS.key?(params[:kind])
     @sort = "most_played" if params[:sort] == "most_played"
-    @tracks = Track.joins(:artist).includes(:artist)
+    @tracks = Track.includes(:artist)
     @tracks = @tracks.where(genre: @genre) if @genre
     @tracks = @tracks.where(kind: @kind) if @kind
     @tracks = @tracks.order(play_count: :desc) if @sort
     if @query.present?
       term = "%#{Track.sanitize_sql_like(@query.downcase(:fold), "!")}%"
-      @tracks = @tracks.where("tracks.search_text LIKE :q ESCAPE '!' OR artists.search_name LIKE :q ESCAPE '!'", q: term).order(:title, :id)
+      @tracks = @tracks.joins(:artist).where("tracks.search_text LIKE :q ESCAPE '!' OR artists.search_name LIKE :q ESCAPE '!'", q: term).order(:title, :id)
     else
       # Mix artists so a run of uploads from one channel doesn't fill the front page.
       @tracks = @tracks.order(Arel.sql("ROW_NUMBER() OVER (PARTITION BY tracks.artist_id ORDER BY tracks.id), tracks.id"))

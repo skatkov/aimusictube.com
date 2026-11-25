@@ -18,7 +18,7 @@
     <p id="playlist-error" role="alert"><%= @playlist.errors.full_messages.to_sentence %></p>
   <% end %>
 <% end %>
-<% if @playlists.any? %>
+<% if @playlists.present? %>
   <ul class="index-list">
     <% @playlists.each do |playlist| %>
       <li><%= link_to playlist.name, playlist_path(playlist) %></li>

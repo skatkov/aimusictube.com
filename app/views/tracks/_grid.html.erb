@@ -1,4 +1,4 @@
-<% if tracks.any? %>
+<% if tracks.present? %>
   <div class="track-grid">
     <%= render partial: "tracks/track", collection: tracks %>
   </div>

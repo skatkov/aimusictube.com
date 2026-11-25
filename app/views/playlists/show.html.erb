@@ -7,7 +7,7 @@
 <div class="actions">
   <%= button_to "Delete playlist", @playlist, method: :delete, form: { data: { turbo_confirm: "Delete “#{@playlist.name}”?" } } %>
 </div>
-<% if @entries.any? %>
+<% if @entries.present? %>
   <ol class="playlist-rows">
     <% @entries.each do |entry| %>
       <li>

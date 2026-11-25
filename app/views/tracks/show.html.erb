@@ -15,7 +15,7 @@
           <summary class="pill"><%= icon "save" %> Save</summary>
           <div class="save-panel">
             <h2>Save to a playlist</h2>
-            <% if @playlists.any? %>
+            <% if @playlists.present? %>
               <%= form_with url: track_playlist_entries_path(@track), class: "inline-form" do |form| %>
                 <%= form.label :playlist_id, "Playlist", class: "sr-only" %>
                 <%= form.collection_select :playlist_id, @playlists, :id, :name %>
@@ -36,7 +36,7 @@
       <%= link_to (@track.kind == "unverified" ? "View source checked" : "View disclosure source"), @track.evidence_url, class: "text-link" %>
     </section>
   </div>
-  <% if @more_tracks.any? %>
+  <% if @more_tracks.present? %>
     <aside class="watch-next" aria-label="More music">
       <h2>More music</h2>
       <%= render partial: "tracks/track", collection: @more_tracks %>
