@@ -51,9 +51,9 @@ The same snapshot includes the Videos tabs of [Persian Instrumental Music](https
 
 ## Checks
 
-Run `bin/ci` before opening a pull request. It checks Standard Ruby, Reek, Rubydex, and import-map dependencies first. It then checks that the full catalog can be reimported without changing IDs or private libraries, and runs Minitest with 100% line and branch coverage required in `app` and `lib`. It uses disposable SQLite databases.
+Run `bin/ci` before opening a pull request. It checks Standard Ruby, Reek, Rubydex, and import-map dependencies first. It then checks that the full catalog can be reimported without changing IDs or private libraries, and runs Minitest with 100% line and branch coverage required in `app`, `lib`, and the catalog importer. It uses disposable SQLite databases.
 
-GitHub Actions runs `bin/ci --mutant`. Mutant runs last, only after all earlier checks pass, and reuses the coverage map from that test run. Plain `bin/rails test` and focused test runs do not enforce full-suite coverage. To iterate on mutations locally:
+GitHub Actions runs `bin/ci --mutant`. Mutant runs last, only after all earlier checks pass, and reuses the coverage map from that test run. It finds subjects by source file in `app`, `lib`, and `db/catalog_seed.rb`, not by a list of classes. Plain `bin/rails test` and focused test runs do not enforce full-suite coverage. To iterate on mutations locally:
 
 ```sh
 RAILS_ENV=test SIMPLECOV=1 bin/rails db:test:prepare test

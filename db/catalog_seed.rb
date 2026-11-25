@@ -14,9 +14,8 @@ class CatalogSeed
     ActiveRecord::Base.transaction(requires_new: true) do
       entries.each do |entry|
         rows = entry.fetch("tracks")
-        defaults = entry.slice("genre", "credit")
         artist = catalog_artist(entry.except("genre", "credit", "tracks"), profiles)
-        rows.each { |row| catalog_track(artist, defaults.merge(row), uploads) }
+        rows.each { |row| catalog_track(artist, entry.merge(row), uploads) }
       end
     end
   end
@@ -37,7 +36,9 @@ class CatalogSeed
   def catalog_track(artist, row, uploads)
     youtube_id, title, duration, genre, credit = row.fetch_values("youtube_id", "title", "duration", "genre", "credit")
     owner = "#{artist.name} (#{artist.starsinger_id || artist.channel_id}): #{title}"
-    raise ArgumentError, "Duplicate YouTube ID #{youtube_id}: #{uploads[youtube_id]} and #{owner}" if uploads.key?(youtube_id)
+    if (previous = uploads[youtube_id])
+      raise ArgumentError, "Duplicate YouTube ID #{youtube_id}: #{previous} and #{owner}"
+    end
     uploads[youtube_id] = owner
 
     track = Track.find_or_initialize_by(youtube_id: youtube_id)

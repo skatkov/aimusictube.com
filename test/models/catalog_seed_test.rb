@@ -12,13 +12,16 @@ class CatalogSeedTest < ActiveSupport::TestCase
 
   test "a duplicate within an import names both entries and rolls back the whole import" do
     @seed.import([ @artist ])
-    error = assert_raises(ArgumentError) do
-      @seed.import([ @artist.merge("tracks" => [ @track.merge("title" => "Changed") ]),
-        @artist.merge("name" => "Second artist", "channel_id" => "UC#{'b' * 22}") ])
+    second = @artist.merge("name" => "Second artist", "starsinger_id" => "b" * 32)
+    Track.transaction(requires_new: true) do
+      error = assert_raises(ArgumentError) do
+        @seed.import([@artist.merge("tracks" => [@track.merge("title" => "Changed")]), second])
+      end
+      assert_eql "Duplicate YouTube ID #{@track.fetch("youtube_id")}: First artist (#{@artist.fetch("channel_id")}): Changed and Second artist (#{second.fetch("starsinger_id")}): Original",
+        error.message
+      assert_equal "Original", Track.sole.title
+      assert_equal "First artist", Artist.sole.name
     end
-    [ @track.fetch("youtube_id"), "First artist", "Changed", "Second artist" ].each { |value| assert_includes error.message, value }
-    assert_equal "Original", Track.sole.title
-    assert_equal "First artist", Artist.sole.name
   end
 
   test "a track credit replaces the whole shared credit, including its source" do
@@ -52,6 +55,11 @@ class CatalogSeedTest < ActiveSupport::TestCase
     assert_empty Artist.all
   end
 
+  test "reports the schema error without dumping the invalid entry or the schema" do
+    error = assert_raises(ArgumentError) { @seed.import([]) }
+    assert_eql "db/catalog.json: array size at root is less than: 1", error.message
+  end
+
   test "long mixes can use either minutes alone or hours and minutes" do
     first = @track.merge("duration" => "99:59")
     second = @track.merge("youtube_id" => "b1234567890", "duration" => "1:39:59")
@@ -76,5 +84,50 @@ class CatalogSeedTest < ActiveSupport::TestCase
     error = assert_raises(ArgumentError) { @seed.import([ @artist, later ]) }
     assert_includes error.message, @artist.fetch("channel_id")
     assert_empty Track.all
+  end
+
+  test "an artist can use different defaults in separate blocks" do
+    second = @track.merge("title" => "Second", "youtube_id" => "b1234567890")
+    block = @artist.merge("genre" => "Rock", "credit" => {"kind" => "generated", "evidence" => "Second credit"}, "tracks" => [second])
+
+    @seed.import([@artist, block])
+    assert_eql [["Pop", "assisted"], ["Rock", "generated"]], Artist.sole.tracks.order(:id).pluck(:genre, :kind)
+  end
+
+  test "artist profiles keep their identity when they share or change publisher channels" do
+    avatar = "ytc/abc"
+    profile = @artist.merge("starsinger_id" => "b" * 32, "avatar" => avatar)
+    other_profile = profile.merge("starsinger_id" => "c" * 32, "tracks" => [@track.merge("youtube_id" => "b1234567890")])
+    channel = @artist.merge("tracks" => [@track.merge("youtube_id" => "c1234567890")])
+    @seed.import([profile, other_profile, channel])
+
+    artist = Track.find_by!(youtube_id: @track.fetch("youtube_id")).artist
+    assert_eql profile.fetch("starsinger_id"), artist.starsinger_id
+    assert_eql "https://yt3.googleusercontent.com/#{avatar}=s96-c-k-c0x00ffffff-no-rj", artist.avatar_url
+    assert_nil Track.find_by!(youtube_id: "c1234567890").artist.avatar_url
+    assert_eql [profile.fetch("starsinger_id"), other_profile.fetch("starsinger_id"), nil], Track.order(:id).map { |track| track.artist.starsinger_id }
+
+    new_channel = "UC#{'d' * 22}"
+    @seed.import([profile.except("avatar").merge("channel_id" => new_channel)])
+    assert_eql new_channel, artist.reload.channel_id
+    assert_nil artist.avatar_url
+    assert_eql artist.id, Track.find_by!(youtube_id: @track.fetch("youtube_id")).artist_id
+    assert_eql 3, Artist.count
+  end
+
+  test "conflicting profile blocks identify the profile rather than its publisher" do
+    profile = @artist.merge("starsinger_id" => "b" * 32)
+    later = profile.merge("name" => "Wrong artist", "tracks" => [@track.merge("youtube_id" => "b1234567890")])
+    error = assert_raises(ArgumentError) { @seed.import([profile, later]) }
+    assert_eql "Conflicting artist details for #{profile.fetch("starsinger_id")}", error.message
+  end
+
+  test "ordinary artists are matched by channel, not by their missing profile ID" do
+    channel = "UC#{'b' * 22}"
+    second = @artist.merge("name" => "Second artist", "channel_id" => channel,
+      "tracks" => [@track.merge("youtube_id" => "b1234567890")])
+    @seed.import([@artist, second])
+
+    assert_eql [@artist.fetch("channel_id"), channel], Track.order(:id).map { |track| track.artist.channel_id }
   end
 end

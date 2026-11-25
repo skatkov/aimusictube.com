@@ -13,20 +13,13 @@ environment_variables:
 
 requires:
   - ./test/support/mutant.rb
+  - ./db/catalog_seed.rb
 
 matcher:
   subjects:
-    - ApplicationController*
-    - ArtistsController*
-    - HistoryController*
-    - LikesController*
-    - PagesController*
-    - PlaylistEntriesController*
-    - PlaylistsController*
-    - TracksController*
-    - ApplicationHelper*
-    - Artist
-    - Track
+    - source:app/**/*.rb
+    - source:lib/**/*.rb
+    - source:db/catalog_seed.rb
 
 hooks:
   - ./config/mutant.rb
