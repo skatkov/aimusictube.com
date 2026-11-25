@@ -18,6 +18,6 @@ module ApplicationHelper
   end
 
   def sidebar_artists
-    @sidebar_artists ||= Artist.order(:name).limit(6).to_a
+    @sidebar_artists ||= Artist.order(:name).limit(6).load
   end
 end

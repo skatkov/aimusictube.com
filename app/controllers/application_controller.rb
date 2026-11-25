@@ -11,7 +11,7 @@ class ApplicationController < ActionController::Base
   private
 
   def paginate(scope)
-    @result_count = scope.count
+    @result_count = scope.size
     @pages = [ 1, (@result_count + PAGE_SIZE - 1) / PAGE_SIZE ].max
     @page = params[:page].to_s.to_i.clamp(1, @pages)
     scope.limit(PAGE_SIZE).offset((@page - 1) * PAGE_SIZE)

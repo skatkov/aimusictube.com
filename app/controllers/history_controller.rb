@@ -10,6 +10,6 @@ class HistoryController < ApplicationController
 
   def destroy
     Play.where(browser_key: browser_key).delete_all
-    redirect_to history_path, status: :see_other
+    head :see_other, location: history_url
   end
 end
