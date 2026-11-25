@@ -35,8 +35,11 @@ class CatalogTest < ActionDispatch::IntegrationTest
   end
 
   test "shows artists and the source of a disclosure" do
+    empty_artist = Artist.create!(name: "No uploads yet", channel_id: "UC1111111111111111111111")
     get artists_path
     assert_select "main a[href=?] strong", artist_path(@artist), @artist.name
+    assert_select "main a[href=?] small", artist_path(@artist), "1 track"
+    assert_select "main a[href=?] small", artist_path(empty_artist), "0 tracks"
     get artist_path(@artist)
     assert_select ".track h2", @track.title
     get watch_path(@track.youtube_id)

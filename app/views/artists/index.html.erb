@@ -12,7 +12,7 @@
   <% @artists.each do |artist| %>
     <li>
       <%= link_to artist_path(artist), class: "artist-row" do %>
-        <%= channel_avatar artist %><span><strong><%= artist.name %></strong><small><%= pluralize artist.tracks.size, "track" %></small></span>
+        <%= channel_avatar artist %><span><strong><%= artist.name %></strong><small><%= pluralize @track_counts.fetch(artist.id, 0), "track" %></small></span>
       <% end %>
     </li>
   <% end %>
