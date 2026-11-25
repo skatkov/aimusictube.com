@@ -13,13 +13,8 @@ class PlaylistsController < ApplicationController
 
   def create
     @playlist = playlists.build(params.expect(playlist: [ :name ]))
-    saved = Playlist.transaction do
-      if @playlist.save
-        @playlist.playlist_entries.create!(track: @track) if @track
-        true
-      end
-    end
-    if saved
+    @playlist.playlist_entries.build(track: @track) if @track
+    if @playlist.save
       redirect_to @playlist, status: :see_other
     else
       @playlists = playlists.order(:name)
