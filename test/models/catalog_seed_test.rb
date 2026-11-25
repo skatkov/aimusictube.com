@@ -42,6 +42,28 @@ class CatalogSeedTest < ActiveSupport::TestCase
     assert_empty Track.all
   end
 
+  test "catalog schema rejects invalid types and durations before importing" do
+    [{"title" => 123}, {"duration" => "3:99"}, {"duration" => "3:19\nextra"}].each do |invalid|
+      record = @artist.merge("tracks" => [@track.merge(invalid)])
+
+      error = assert_raises(ArgumentError) { @seed.import([record]) }
+      assert_includes error.message, "/0/tracks/0/#{invalid.keys.first}"
+    end
+    assert_empty Artist.all
+  end
+
+  test "a track needs its own genre and credit when no artist defaults are supplied" do
+    %w[genre credit].each do |field|
+      error = assert_raises(ArgumentError) { @seed.import([@artist.except(field)]) }
+      assert_includes error.message, "/0/tracks/0"
+      assert_includes error.message, field
+    end
+
+    track = @track.merge("genre" => "Pop", "credit" => @artist.fetch("credit"))
+    @seed.import([@artist.except("genre", "credit").merge("tracks" => [track])])
+    assert_eql "Pop", Track.sole.genre
+  end
+
   test "a second block of uploads cannot overwrite the same artist's identity" do
     later = @artist.merge("name" => "Wrong artist", "tracks" => [ @track.merge("youtube_id" => "b1234567890") ])
     error = assert_raises(ArgumentError) { @seed.import([ @artist, later ]) }

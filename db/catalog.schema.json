@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Music Tube catalog",
+  "type": "array",
+  "minItems": 1,
+  "items": { "$ref": "#/$defs/artist" },
+  "$defs": {
+    "text": { "type": "string", "pattern": "\\S" },
+    "credit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "evidence"],
+      "properties": {
+        "kind": { "enum": ["generated", "assisted", "disclosed", "unverified"] },
+        "evidence": { "$ref": "#/$defs/text" },
+        "evidence_url": { "type": "string", "format": "uri", "pattern": "^https://[A-Za-z0-9.-]+(?:[/?#][^\\s]*)?$" }
+      }
+    },
+    "track": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["youtube_id", "title", "duration"],
+      "properties": {
+        "youtube_id": { "type": "string", "minLength": 11, "maxLength": 11, "pattern": "^[A-Za-z0-9_-]{11}$" },
+        "title": { "$ref": "#/$defs/text" },
+        "duration": { "type": "string", "pattern": "^(?:[0-9]+:)?[0-9]+:[0-5][0-9]$" },
+        "genre": { "$ref": "#/$defs/text" },
+        "credit": { "$ref": "#/$defs/credit" }
+      }
+    },
+    "artist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "channel_id", "tracks"],
+      "properties": {
+        "name": { "$ref": "#/$defs/text" },
+        "channel_id": { "type": "string", "minLength": 24, "maxLength": 24, "pattern": "^UC[A-Za-z0-9_-]{22}$" },
+        "starsinger_id": { "type": "string", "minLength": 32, "maxLength": 32, "pattern": "^[a-z0-9]{32}$" },
+        "avatar": { "type": "string", "pattern": "^(?:ytc/)?[A-Za-z0-9_-]+$" },
+        "genre": { "$ref": "#/$defs/text" },
+        "credit": { "$ref": "#/$defs/credit" },
+        "tracks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/track" } }
+      },
+      "allOf": [
+        {
+          "if": { "not": { "required": ["genre"] } },
+          "then": { "properties": { "tracks": { "items": { "required": ["genre"] } } } }
+        },
+        {
+          "if": { "not": { "required": ["credit"] } },
+          "then": { "properties": { "tracks": { "items": { "required": ["credit"] } } } }
+        }
+      ]
+    }
+  }
+}

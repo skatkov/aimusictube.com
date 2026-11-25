@@ -11,7 +11,7 @@ Dir.mktmpdir("ai-music-tube-ci") do |dir|
     step "Security: Importmap vulnerability audit", "bin/importmap audit"
     ENV["DATABASE_URL"] = "sqlite3:#{dir}/seeds.sqlite3"
     step "Seed schema", "bin/rails db:schema:load"
-    step "Tests: Reseeding preserves libraries", "bin/rails runner script/check_seeds.rb"
+    step "Catalog: Validate JSON and check reseeding preserves libraries", "bin/rails runner script/check_seeds.rb"
 
     ENV["DATABASE_URL"] = "sqlite3:#{dir}/tests.sqlite3"
     step "Test schema", "bin/rails db:schema:load"

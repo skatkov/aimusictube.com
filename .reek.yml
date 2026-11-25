@@ -24,10 +24,6 @@ detectors:
       - "CatalogSeed#catalog_track"
       - "TracksController#index"
       - "TracksController#play"
-  UtilityFunction:
-    exclude:
-      - "CatalogSeed#validate_credit"
-
 directories:
   "app/controllers":
     # Action methods populate view assigns rather than initializing shared state.
