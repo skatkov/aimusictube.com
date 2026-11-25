@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-25T11:20:00Z",
+  "title": "Design System: AI Music Tube",
+  "extensions": {
+    "breakpoints": [
+      { "name": "Compact sidebar", "value": "1100px" },
+      { "name": "Drawer navigation", "value": "800px" },
+      { "name": "Single-column feed", "value": "600px" }
+    ],
+    "shadows": [
+      { "name": "Save panel", "value": "0 5px 22px rgb(0 0 0 / .2)", "purpose": "Separates the open Save panel from watch-page content." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Filter chip",
+      "kind": "chip",
+      "refersTo": "filter-chip",
+      "description": "Compact, mutually exclusive feed filters.",
+      "html": "<button class=\"chip\" aria-pressed=\"true\">All</button> <button class=\"chip\" aria-pressed=\"false\">AI-assisted</button>",
+      "css": ".chip { border: 0; border-radius: 8px; height: 32px; padding: 0 12px; color: #0f0f0f; background: #f2f2f2; font-weight: 550; } .chip:hover { background: #e5e5e5; } .chip[aria-pressed=\"true\"] { color: #fff; background: #0f0f0f; } .chip:focus-visible { outline: 2px solid #065fd4; outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Familiar video feed, independent music identity",
+    "dos": ["Do keep the artwork prominent and disclosure text visible."],
+    "donts": ["Don’t use YouTube’s logo as the catalog’s mark."]
+  }
+}

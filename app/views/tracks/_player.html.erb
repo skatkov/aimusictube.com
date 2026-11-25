@@ -1,0 +1,12 @@
+<%= turbo_frame_tag dom_id(track, :player), class: "player", data: { turbo_permanent: true } do %>
+  <% if playing %>
+    <iframe src="https://www.youtube-nocookie.com/embed/<%= track.youtube_id %>?autoplay=1&amp;playsinline=1&amp;rel=0"
+      title="<%= track.title %> — YouTube player" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  <% else %>
+    <%= button_to play_track_path(track), class: "poster", aria: { label: "Play #{track.title}" } do %>
+      <%= render "tracks/artwork", track: track, loading: "eager" %>
+      <span class="play-badge"><%= icon "play" %></span>
+    <% end %>
+  <% end %>
+<% end %>

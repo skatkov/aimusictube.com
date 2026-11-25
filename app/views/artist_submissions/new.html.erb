@@ -1,0 +1,23 @@
+<% content_for :title, "Suggest an artist" %>
+
+<article class="about">
+  <header>
+    <h1>Suggest an artist</h1>
+    <p class="about-intro">Whose music should we listen to next?</p>
+  </header>
+  <%= form_with model: @submission, class: "suggestion-form" do |form| %>
+    <div>
+      <%= form.label :youtube_url, "YouTube video or channel link" %>
+      <%= form.url_field :youtube_url, required: true, maxlength: 2048, placeholder: "https://www.youtube.com/@artist", aria: { invalid: @submission.errors[:youtube_url].any?, describedby: ("link-error" if @submission.errors[:youtube_url].any?) } %>
+      <% if @submission.errors[:youtube_url].any? %><p id="link-error" role="alert"><%= @submission.errors[:youtube_url].first %></p><% end %>
+    </div>
+    <div>
+      <%= form.label :notes, "What did AI contribute? (optional)" %>
+      <p id="notes-hint">A link to the artist’s credits or an interview about the recording helps us check.</p>
+      <%= form.text_area :notes, rows: 3, maxlength: 1000, aria: { invalid: @submission.errors[:notes].any?, describedby: (@submission.errors[:notes].any? ? "notes-hint notes-error" : "notes-hint") } %>
+      <% if @submission.errors[:notes].any? %><p id="notes-error" role="alert">Keep your note to 1,000 characters or fewer.</p><% end %>
+    </div>
+    <p>Suggestions are private. We check the music and its credits before listing an artist.</p>
+    <%= form.submit "Send suggestion", class: "primary" %>
+  <% end %>
+</article>

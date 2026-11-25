@@ -1,0 +1,20 @@
+<nav aria-label="Main">
+  <%= nav_link "Home", root_path, active: current_page?(root_path) && @query.blank?, glyph: "home" %>
+  <%= nav_link "Artists", artists_path, active: current_page?(artists_path), glyph: "artists" %>
+  <%= nav_link "Tags", tags_path, active: current_page?(tags_path), glyph: "tag" %>
+  <hr>
+  <p class="rail-title">You</p>
+  <%= nav_link "History", history_path, active: controller_name == "history", glyph: "history" %>
+  <%= nav_link "Playlists", playlists_path, active: controller_name == "playlists", glyph: "playlist" %>
+  <%= nav_link "Liked music", liked_path, active: controller_name == "likes", glyph: "like" %>
+  <% if sidebar_artists.any? %>
+    <div class="channel-nav">
+      <hr><p class="rail-title">Music artists</p>
+      <% sidebar_artists.each do |artist| %>
+        <%= link_to artist_path(artist), aria: { current: ("page" if artist == @artist) } do %>
+          <%= channel_avatar artist %><span><%= artist.name %></span>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</nav>

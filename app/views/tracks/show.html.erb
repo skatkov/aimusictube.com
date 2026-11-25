@@ -1,0 +1,45 @@
+<% content_for :title, @track.title %>
+<div class="watch">
+  <div class="watch-main">
+    <%= render "tracks/player", track: @track, playing: false %>
+    <h1><%= @track.title %></h1>
+    <div class="owner-row">
+      <%= link_to artist_path(@track.artist), class: "artist-row" do %>
+        <%= channel_avatar @track.artist %><span><strong><%= @track.artist.name %></strong><small><%= @track.genre %></small></span>
+      <% end %>
+      <div class="actions">
+        <%= button_to track_like_path(@track), method: @liked ? :delete : :post, class: "pill", aria: { pressed: @liked } do %>
+          <%= icon "like" %> <%= @liked ? "Unlike" : "Like" %>
+        <% end %>
+        <details class="save-menu">
+          <summary class="pill"><%= icon "save" %> Save</summary>
+          <div class="save-panel">
+            <h2>Save to a playlist</h2>
+            <% if @playlists.any? %>
+              <%= form_with url: track_playlist_entries_path(@track), class: "inline-form" do |form| %>
+                <%= form.label :playlist_id, "Playlist", class: "sr-only" %>
+                <%= form.collection_select :playlist_id, @playlists, :id, :name %>
+                <%= form.submit "Save", class: "pill primary" %>
+              <% end %>
+            <% end %>
+            <%= link_to "Create a playlist for this track", playlists_path(track_id: @track.id), class: "text-link" %>
+          </div>
+        </details>
+        <%= button_to play_track_path(@track), class: "pill", form: { data: { turbo: false } } do %>
+          <%= icon "external" %> Watch on YouTube
+        <% end %>
+      </div>
+    </div>
+    <section class="description" aria-labelledby="disclosure">
+      <h2 id="disclosure">AI disclosure<%= render "tracks/kind", track: @track %></h2>
+      <p><%= @track.evidence %></p>
+      <%= link_to (@track.kind == "unverified" ? "View source checked" : "View disclosure source"), @track.evidence_url, class: "text-link" %>
+    </section>
+  </div>
+  <% if @more_tracks.any? %>
+    <aside class="watch-next" aria-label="More music">
+      <h2>More music</h2>
+      <%= render partial: "tracks/track", collection: @more_tracks %>
+    </aside>
+  <% end %>
+</div>

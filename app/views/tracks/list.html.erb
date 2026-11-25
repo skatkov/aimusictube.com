@@ -1,0 +1,18 @@
+<% title = @artist ? @artist.name : @title %>
+<% content_for :title, title %>
+<header class="page-heading">
+  <% if @artist %><%= channel_avatar @artist %><% end %>
+  <h1><%= title %></h1>
+  <% if @description %><p><%= @description %></p><% end %>
+  <% if @artist&.starsinger_id %>
+    <p><%= link_to "StarSinger artist profile", @artist.starsinger_url, class: "text-link" %> · <%= link_to "Publisher on YouTube", @artist.youtube_url, class: "text-link" %></p>
+  <% elsif @artist %>
+    <%= link_to "Artist on YouTube", @artist.youtube_url, class: "text-link" %>
+  <% end %>
+</header>
+<% if controller_name == "history" && @tracks.any? %>
+  <div class="actions">
+    <%= button_to "Clear history", history_path, method: :delete, form: { data: { turbo_confirm: "Clear this browser’s history?" } } %>
+  </div>
+<% end %>
+<%= render "tracks/grid", tracks: @tracks, empty: @empty || "No tracks are listed for this artist yet." %>

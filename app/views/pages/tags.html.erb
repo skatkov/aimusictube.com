@@ -1,0 +1,21 @@
+<% content_for :title, "Tags" %>
+<header class="page-heading">
+  <h1>Tags</h1>
+  <p>Choose a tag to browse its music. Counts are uploads in the whole catalog.</p>
+</header>
+<section class="tag-group">
+  <h2>AI disclosure</h2>
+  <ul class="tag-list">
+    <% Track::LABELS.each do |kind, label| %>
+      <li><%= link_to root_path(kind: kind, q: @query.presence, sort: @sort) do %><%= label %> <small><%= number_with_delimiter @disclosure_counts.fetch(kind, 0) %></small><% end %></li>
+    <% end %>
+  </ul>
+</section>
+<section class="tag-group">
+  <h2>Genres and mixes</h2>
+  <ul class="tag-list">
+    <% @genre_counts.each do |genre, count| %>
+      <li><%= link_to root_path(genre: genre, q: @query.presence, sort: @sort) do %><%= genre %> <small><%= number_with_delimiter count %></small><% end %></li>
+    <% end %>
+  </ul>
+</section>

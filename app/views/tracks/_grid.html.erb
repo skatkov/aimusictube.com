@@ -1,0 +1,7 @@
+<% if tracks.any? %>
+  <div class="track-grid">
+    <%= render partial: "tracks/track", collection: tracks %>
+  </div>
+<% else %>
+  <p class="empty"><%= empty %></p>
+<% end %>

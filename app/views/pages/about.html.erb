@@ -1,0 +1,56 @@
+<% content_for :title, "About" %>
+
+<article class="about">
+  <header>
+    <h1>About AI Music Tube</h1>
+    <p class="about-intro">Discover music made with AI, and see what the technology actually did.</p>
+  </header>
+
+  <dl class="about-stats">
+    <div><dt>YouTube uploads</dt><dd><%= number_with_delimiter @disclosure_counts.values.sum %></dd></div>
+    <div><dt>Artists and channels</dt><dd><%= number_with_delimiter @artist_count %></dd></div>
+    <div><dt><%= link_to "Catalog tags", tags_path, class: "text-link" %></dt><dd><%= number_with_delimiter @genre_count + Track::LABELS.size %></dd></div>
+  </dl>
+  <p class="stats-note">A song, album, or mix counts as one upload.</p>
+
+  <section>
+    <h2>Uploads with AI music labels</h2>
+    <dl class="disclosure-counts">
+      <% Track::LABELS.each do |kind, label| %>
+        <div>
+          <dt><%= link_to label, root_path(kind: kind), class: "text-link" %></dt>
+          <dd><%= number_with_delimiter @disclosure_counts.fetch(kind, 0) %></dd>
+        </div>
+      <% end %>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Know an artist we’re missing?</h2>
+    <p><%= link_to "Suggest an artist", new_artist_submission_path, class: "text-link" %> with a link to their music on YouTube. We review suggestions before adding them to the catalog.</p>
+  </section>
+
+  <section>
+    <h2>Why this catalog exists</h2>
+    <p>On YouTube, an AI-made music video, a human recording with a restored vocal, and a song with generated vocals can look the same in the feed. AI Music Tube brings songs, albums, and long mixes together and explains what’s known about each recording.</p>
+  </section>
+
+  <section>
+    <h2>How tracks get labeled</h2>
+    <p>Each track links to the evidence or the source we checked. We look for credits, creator disclosures, and reporting about the music itself.</p>
+    <ul>
+      <li><strong>AI-generated:</strong> AI generated the music or a defining part of it, such as the lead vocal.</li>
+      <li><strong>AI-assisted:</strong> AI contributed to a human-led recording, or the creator disclosed AI use in the music without saying which parts.</li>
+    </ul>
+    <p>If the source doesn’t say whether AI was used in the music, the track has no label. You can still read its source note.</p>
+  </section>
+
+  <section>
+    <h2>Playback and your library</h2>
+    <p>Select the play icon on a track to load the official YouTube player. If it won’t play here, try <strong>Watch on YouTube</strong>. AI Music Tube doesn’t host audio or video and isn’t affiliated with or endorsed by YouTube or Google.</p>
+    <p>Likes, playlists, and history are tied to this browser. There’s no account or syncing, and clearing the site’s cookie removes access to your library. History records when you choose to play or open a track, not how long you listen.</p>
+    <p><%= link_to "Most played", root_path(sort: "most_played"), class: "text-link" %> counts clicks on the player or on <strong>Watch on YouTube</strong> here, including repeat plays. These are site totals, not YouTube views or listening time. Clearing your history doesn’t change them.</p>
+  </section>
+
+  <p><%= link_to "Browse the catalog", root_path, class: "text-link" %></p>
+</article>

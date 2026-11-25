@@ -1,0 +1,14 @@
+<article class="track">
+  <%= link_to track_path(track), tabindex: "-1", aria: { hidden: true }, class: "thumb-link" do %>
+    <%= render "tracks/artwork", track: track, loading: "lazy" %>
+  <% end %>
+  <div class="video-info">
+    <%= channel_avatar track.artist %>
+    <div class="video-copy">
+      <h2><%= link_to track.title, track, class: "track-link" %></h2>
+      <p><%= link_to track.artist.name, artist_path(track.artist), class: "byline" %></p>
+      <p class="video-meta"><%= track.genre %><%= render "tracks/kind", track: track %></p>
+      <% if @sort == "most_played" %><p><%= pluralize number_with_delimiter(track.play_count), "site play" %></p><% end %>
+    </div>
+  </div>
+</article>

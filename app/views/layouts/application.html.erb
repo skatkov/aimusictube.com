@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= [content_for(:title), "AI Music Tube"].compact.join(" · ") %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="turbo-cache-control" content="no-cache">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="icon" href="/record.svg" type="image/svg+xml">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body data-controller="shell" data-action="resize@window->shell#syncMenu">
+    <a href="#main" class="skip-link">Skip to content</a>
+    <header class="topbar">
+      <div class="mast-start">
+        <button class="icon-button menu" type="button" data-shell-target="menuButton" data-action="shell#menu" aria-label="Navigation menu" title="Navigation menu"><%= icon "menu" %></button>
+        <%= link_to root_path, class: "brand", aria: { label: "AI Music Tube home" } do %>
+          <%= image_tag "/record.svg", alt: "", width: 28, height: 28 %><span>AI Music Tube</span>
+        <% end %>
+      </div>
+      <%= form_with url: root_path, method: :get, class: "search", role: "search" do |form| %>
+        <%= form.label :q, "Search tracks, artists, or genres", class: "sr-only" %>
+        <%= form.search_field :q, value: @query, placeholder: "Search", maxlength: 100 %>
+        <%= form.hidden_field :kind, value: @kind if @kind %>
+        <%= form.hidden_field :genre, value: @genre if @genre %>
+        <%= form.hidden_field :sort, value: @sort if @sort %>
+        <button aria-label="Search" title="Search"><%= icon "search" %></button>
+      <% end %>
+      <div class="mast-end">
+        <%= link_to playlists_path(anchor: "new-playlist"), class: "pill create-link", aria: { label: "Create playlist" } do %>
+          <%= icon "plus" %> Create
+        <% end %>
+        <%= link_to about_path, class: "icon-button about-link", title: "About AI Music Tube",
+          aria: { label: "About AI Music Tube", current: ("page" if current_page?(about_path)) } do %>
+          <%= icon "about" %>
+        <% end %>
+        <button class="icon-button theme" type="button" data-action="shell#theme" aria-label="Switch color theme" title="Switch color theme"><%= icon "moon" %><%= icon "sun" %></button>
+      </div>
+    </header>
+    <div class="shell">
+      <aside id="navigation-rail" class="rail"><%= render "layouts/navigation" %></aside>
+      <dialog id="navigation-drawer" class="drawer" data-shell-target="drawer" aria-label="Navigation" data-action="click->shell#backdrop close->shell#syncMenu">
+        <div class="drawer-top"><button class="icon-button" type="button" data-action="shell#close" aria-label="Close navigation"><%= icon "menu" %></button><span class="brand"><%= image_tag "/record.svg", alt: "", width: 28, height: 28 %> AI Music Tube</span></div>
+        <%= render "layouts/navigation" %>
+      </dialog>
+      <main id="main" tabindex="-1">
+        <% if notice.present? %><p class="notice" role="status"><%= notice %></p><% end %>
+        <%= yield %>
+      </main>
+      <footer class="site-footer">
+        <span>Built by GPT-6.2 Sol and <%= link_to "@5katkov on X", "https://x.com/5katkov", class: "text-link", rel: "me" %>.</span>
+        <span>AI Music Tube is not affiliated with or endorsed by YouTube or Google.</span>
+      </footer>
+    </div>
+  </body>
+</html>

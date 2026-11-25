@@ -1,0 +1,25 @@
+<% content_for :title, @query.present? ? "Search: #{@query}" : "Home" %>
+<h1 class="sr-only"><%= @query.present? ? "Search results" : "Music feed" %></h1>
+<div class="catalog-toolbar">
+  <% filters = { q: @query.presence, kind: @kind, genre: @genre }.compact %>
+  <nav class="filters" aria-label="Browse music">
+    <%= nav_link "Discover", root_path(filters), active: !@sort %>
+    <%= nav_link "Most played", root_path(filters.merge(sort: "most_played")), active: @sort.present? %>
+    <%= link_to "Browse tags", tags_path(q: @query.presence, sort: @sort) %>
+  </nav>
+</div>
+<% if @genre || @kind %>
+  <p class="result-count">Filtered by <strong><%= [@genre, Track::LABELS[@kind]].compact.join(" · ") %></strong> · <%= link_to "Clear filters", root_path(q: @query.presence, sort: @sort), class: "text-link" %></p>
+<% end %>
+<% if @sort %><p class="result-count">Ranked by play clicks on AI Music Tube.</p><% end %>
+<% if @query.present? %><p class="result-count"><%= pluralize @result_count, "result" %> for “<%= @query %>”</p><% end %>
+<div class="<%= "search-results" if @query.present? %>">
+  <%= render "tracks/grid", tracks: @tracks, empty: @empty %>
+</div>
+<% if @pages > 1 %>
+  <nav class="feed-pages" aria-label="Feed pages">
+    <%= link_to "Previous", root_path(filters.merge(sort: @sort, page: @page - 1)), class: "pill", rel: "prev" if @page > 1 %>
+    <span>Page <%= @page %> of <%= @pages %></span>
+    <%= link_to "Next", root_path(filters.merge(sort: @sort, page: @page + 1)), class: "pill", rel: "next" if @page < @pages %>
+  </nav>
+<% end %>

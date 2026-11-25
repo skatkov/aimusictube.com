@@ -1,0 +1,29 @@
+<% content_for :title, "Playlists" %>
+<header class="page-heading">
+  <h1>Playlists</h1>
+  <% if @track %>
+    <p>Create a playlist and save <%= link_to @track.title, @track, class: "text-link" %> to it.</p>
+  <% else %>
+    <p>Make collections of tracks. Only this browser can see them.</p>
+  <% end %>
+</header>
+<%= form_with model: @playlist, class: "create-playlist", id: "new-playlist" do |form| %>
+  <%= hidden_field_tag :track_id, @track.id if @track %>
+  <%= form.label :name, "New playlist name" %>
+  <div class="inline-form">
+    <%= form.text_field :name, required: true, maxlength: 80, placeholder: "e.g. Late-night listening", aria: { describedby: ("playlist-error" if @playlist.errors.any?) } %>
+    <%= form.submit (@track ? "Create and save track" : "Create playlist"), class: "primary" %>
+  </div>
+  <% if @playlist.errors.any? %>
+    <p id="playlist-error" role="alert"><%= @playlist.errors.full_messages.to_sentence %></p>
+  <% end %>
+<% end %>
+<% if @playlists.any? %>
+  <ul class="index-list">
+    <% @playlists.each do |playlist| %>
+      <li><%= link_to playlist.name, playlist_path(playlist) %></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="empty">No playlists yet. Give your first one a name above.</p>
+<% end %>

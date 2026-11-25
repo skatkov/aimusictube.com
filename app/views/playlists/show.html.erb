@@ -1,0 +1,25 @@
+<% content_for :title, @playlist.name %>
+<header class="page-heading">
+  <%= link_to "All playlists", playlists_path, class: "back-link" %>
+  <h1><%= @playlist.name %></h1>
+  <p><%= pluralize @entries.size, "track" %></p>
+</header>
+<div class="actions">
+  <%= button_to "Delete playlist", @playlist, method: :delete, form: { data: { turbo_confirm: "Delete “#{@playlist.name}”?" } } %>
+</div>
+<% if @entries.any? %>
+  <ol class="playlist-rows">
+    <% @entries.each do |entry| %>
+      <li>
+        <%= render entry.track %>
+        <%= button_to "Remove", playlist_entry_path(@playlist, entry), method: :delete,
+              class: "remove", aria: { label: "Remove #{entry.track.title} from #{@playlist.name}" } %>
+      </li>
+    <% end %>
+  </ol>
+<% else %>
+  <div class="empty">
+    <p>This playlist is empty. Open a track to save it here.</p>
+    <%= link_to "Browse tracks", root_path, class: "text-link" %>
+  </div>
+<% end %>

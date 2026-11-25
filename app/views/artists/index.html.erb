@@ -1,0 +1,19 @@
+<% content_for :title, @starsinger_only ? "StarSinger artists" : "Artists" %>
+<header class="page-heading">
+  <h1><%= content_for :title %></h1>
+  <% if @starsinger_only %>
+    <p>These artists have recordings on StarSinger’s YouTube channel. <%= link_to "Browse all artists", artists_path, class: "text-link" %></p>
+  <% else %>
+    <%= link_to "Browse StarSinger artists", artists_path(source: "starsinger"), class: "text-link" %> ·
+  <% end %>
+  <%= link_to "Suggest an artist", new_artist_submission_path, class: "text-link" %>
+</header>
+<ul class="index-list artist-list">
+  <% @artists.each do |artist| %>
+    <li>
+      <%= link_to artist_path(artist), class: "artist-row" do %>
+        <%= channel_avatar artist %><span><strong><%= artist.name %></strong><small><%= pluralize artist.tracks.size, "track" %></small></span>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
