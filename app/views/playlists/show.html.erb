@@ -2,7 +2,7 @@
 <header class="page-heading">
   <%= link_to "All playlists", playlists_path, class: "back-link" %>
   <h1><%= @playlist.name %></h1>
-  <p><%= pluralize @entries.size, "track" %></p>
+  <p><%= pluralize @result_count, "track" %></p>
 </header>
 <div class="actions">
   <%= button_to "Delete playlist", @playlist, method: :delete, form: { data: { turbo_confirm: "Delete “#{@playlist.name}”?" } } %>
@@ -23,3 +23,4 @@
     <%= link_to "Browse tracks", root_path, class: "text-link" %>
   </div>
 <% end %>
+<%= render "shared/pagination" %>

@@ -1,0 +1,8 @@
+<% if @pages > 1 %>
+  <% filters = local_assigns.fetch(:filters, {}) %>
+  <nav class="feed-pages" aria-label="Results pages">
+    <%= link_to "Previous", url_for(filters.merge(page: @page - 1)), class: "pill", rel: "prev" if @page > 1 %>
+    <span>Page <%= @page %> of <%= @pages %></span>
+    <%= link_to "Next", url_for(filters.merge(page: @page + 1)), class: "pill", rel: "next" if @page < @pages %>
+  </nav>
+<% end %>

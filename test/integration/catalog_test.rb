@@ -108,6 +108,28 @@ class CatalogTest < ActionDispatch::IntegrationTest
     assert_select "footer a[href=?]", "https://x.com/5katkov", "@5katkov on X"
   end
 
+  test "artist, history, likes and playlist links page through the same scoped results" do
+    post playlists_path, params: { playlist: { name: "All my tracks" } }
+    playlist = Playlist.sole
+    tracks = [ @track ] + Array.new(ApplicationController::PAGE_SIZE) { |n| @track.dup.tap { |t| t.update!(youtube_id: format("P%010d", n)) } }
+    tracks.each_with_index do |track, n|
+      playlist.playlist_entries.create!(track: track)
+      Like.create!(browser_key: playlist.browser_key, track: track)
+      Play.create!(browser_key: playlist.browser_key, track: track, opened_at: Time.utc(2026) + n)
+    end
+
+    { artist_path(@artist) => tracks.last, playlist_path(playlist) => tracks.last, liked_path => tracks.first, history_path => tracks.first }.each do |path, remaining|
+      get path
+      assert_select ".track", count: ApplicationController::PAGE_SIZE
+      assert_select "a[rel=next][href=?]", "#{path}?page=2"
+      get "#{path}?page=2"
+      assert_select ".track", count: 1
+      assert_select ".track-link[href=?]", watch_path(remaining.youtube_id)
+      assert_select "a[rel=prev][href=?]", "#{path}?page=1"
+      assert_select "header p", "#{ApplicationController::PAGE_SIZE + 1} tracks" if path == playlist_path(playlist)
+    end
+  end
+
   test "home gives each artist a slot and the tag directory filters the feed" do
     @track.dup.tap { |t| t.update!(youtube_id: "BcDe2345_-z", title: "Another track") }
     second = Artist.create!(name: "Second Artist", channel_id: "UC1111111111111111111111")

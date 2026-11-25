@@ -8,7 +8,7 @@ class ArtistsController < ApplicationController
 
   def show
     @artist = Artist.find(params[:id])
-    @tracks = @artist.tracks.order(:id)
+    @tracks = paginate(@artist.tracks.order(:id))
     render "tracks/list"
   end
 end

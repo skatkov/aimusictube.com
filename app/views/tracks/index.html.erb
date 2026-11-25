@@ -16,10 +16,4 @@
 <div class="<%= "search-results" if @query.present? %>">
   <%= render "tracks/grid", tracks: @tracks, empty: @empty %>
 </div>
-<% if @pages > 1 %>
-  <nav class="feed-pages" aria-label="Feed pages">
-    <%= link_to "Previous", root_path(filters.merge(sort: @sort, page: @page - 1)), class: "pill", rel: "prev" if @page > 1 %>
-    <span>Page <%= @page %> of <%= @pages %></span>
-    <%= link_to "Next", root_path(filters.merge(sort: @sort, page: @page + 1)), class: "pill", rel: "next" if @page < @pages %>
-  </nav>
-<% end %>
+<%= render "shared/pagination", filters: filters.merge(sort: @sort) %>

@@ -1,6 +1,4 @@
 class TracksController < ApplicationController
-  PAGE_SIZE = 48
-
   def index
     @query = params[:q].to_s.strip.first(100)
     genre = params[:genre] == "Jazz mixes" ? "Mixes" : params[:genre]
@@ -18,10 +16,7 @@ class TracksController < ApplicationController
       # Mix artists so a run of uploads from one channel doesn't fill the front page.
       @tracks = @tracks.order(Arel.sql("ROW_NUMBER() OVER (PARTITION BY tracks.artist_id ORDER BY tracks.id), tracks.id"))
     end
-    @result_count = @tracks.count
-    @pages = [ 1, (@result_count + PAGE_SIZE - 1) / PAGE_SIZE ].max
-    @page = params[:page].to_s.to_i.clamp(1, @pages)
-    @tracks = @tracks.limit(PAGE_SIZE).offset((@page - 1) * PAGE_SIZE)
+    @tracks = paginate(@tracks)
     @empty = "No tracks match. Try another search or AI filter."
   end
 

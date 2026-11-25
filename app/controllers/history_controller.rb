@@ -3,7 +3,7 @@ class HistoryController < ApplicationController
     @title = "History"
     @description = "Tracks you opened in the player or on YouTube from this browser."
     @empty = "Nothing here yet. Play a track or open it on YouTube to start your history."
-    @tracks = Play.where(browser_key: browser_key).order(opened_at: :desc, id: :desc).includes(track: :artist).map(&:track)
+    @tracks = paginate(Play.where(browser_key: browser_key).order(opened_at: :desc, id: :desc)).includes(track: :artist).map(&:track)
     render "tracks/list"
   end
 

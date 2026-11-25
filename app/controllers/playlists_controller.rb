@@ -8,7 +8,7 @@ class PlaylistsController < ApplicationController
 
   def show
     @playlist = playlists.find(params[:id])
-    @entries = @playlist.playlist_entries.order(:id).includes(track: :artist)
+    @entries = paginate(@playlist.playlist_entries.order(:id)).includes(track: :artist)
   end
 
   def create

@@ -3,7 +3,7 @@ class LikesController < ApplicationController
     @title = "Liked tracks"
     @description = "Your favorites, saved in this browser."
     @empty = "No likes yet. Open a track and select Like."
-    @tracks = Like.where(browser_key: browser_key).order(id: :desc).includes(track: :artist).map(&:track)
+    @tracks = paginate(Like.where(browser_key: browser_key).order(id: :desc)).includes(track: :artist).map(&:track)
     render "tracks/list"
   end
 
