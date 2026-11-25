@@ -343,12 +343,13 @@ class CatalogTest < ActionDispatch::IntegrationTest
     assert_select ".search input[name=sort][value=most_played]"
   end
 
-  test "artist suggestions open a GitHub pull request from Artists, About, and old bookmarks" do
-    github = "https://github.com/skatkov/aimusictube.com/compare?expand=1"
+  test "artist suggestions open the GitHub catalog editor from Artists, About, and old bookmarks" do
+    github = "https://github.com/skatkov/aimusictube.com/edit/main/db/catalog.json"
     [ artists_path, about_path ].each do |path|
       get path
-      assert_select "main a[href=?]", github, /pull request/i
+      assert_select "main a[href=?]", github, /edit .* on GitHub/i
     end
+    assert_select "main a[href=?]", "https://github.com/skatkov/aimusictube.com", "View the source on GitHub"
     get "/artist-submissions/new"
     assert_redirected_to github
     post "/artist-submissions"
