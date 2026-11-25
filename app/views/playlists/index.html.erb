@@ -2,7 +2,7 @@
 <header class="page-heading">
   <h1>Playlists</h1>
   <% if @track %>
-    <p>Create a playlist and save <%= link_to @track.title, watch_path(@track.youtube_id), class: "text-link" %> to it.</p>
+    <p>Create a playlist and save <%= link_to @track.title, @track, class: "text-link" %> to it.</p>
   <% else %>
     <p>Make collections of tracks. Only this browser can see them.</p>
   <% end %>

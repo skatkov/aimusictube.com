@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   direct(:artist_pull_request) { pull_request }
   get "artist-submissions/new", to: redirect(pull_request)
   get "watch/:youtube_id", to: "tracks#show", as: :watch, constraints: { youtube_id: /[A-Za-z0-9_-]{11}/ }
+  resolve("Track") { |track| route_for(:watch, track.youtube_id) }
   get "tracks/:id", to: "tracks#legacy", as: :track, constraints: { id: /\d+/ }
   resources :tracks, only: [] do
     post :play, on: :member

@@ -21,7 +21,7 @@ class TracksController < ApplicationController
   end
 
   def legacy
-    redirect_to watch_path(Track.find(params[:id]).youtube_id), status: :moved_permanently
+    redirect_to Track.find(params[:id]), status: :moved_permanently
   end
 
   def show

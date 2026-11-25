@@ -10,12 +10,12 @@ class LikesController < ApplicationController
   def create
     track = Track.find(params[:track_id])
     Like.create_or_find_by!(browser_key: browser_key, track: track)
-    redirect_to watch_path(track.youtube_id), status: :see_other
+    redirect_to track, status: :see_other
   end
 
   def destroy
     track = Track.find(params[:track_id])
     Like.where(browser_key: browser_key, track: track).delete_all
-    redirect_to watch_path(track.youtube_id), status: :see_other
+    redirect_to track, status: :see_other
   end
 end
