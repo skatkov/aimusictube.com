@@ -53,6 +53,7 @@ class CatalogTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/watch/00012345678"
     follow_redirect!
     assert_select "main h1", @track.title
+    assert_equal "/watch/00012345678#disclosure", polymorphic_path(@track, anchor: "disclosure")
     get "/watch/00000000000"
     assert_response :not_found
   end
