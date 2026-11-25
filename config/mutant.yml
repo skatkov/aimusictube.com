@@ -1,0 +1,36 @@
+usage: commercial
+
+integration:
+  name: minitest
+
+includes:
+  - app
+  - lib
+  - test
+
+environment_variables:
+  RAILS_ENV: test
+
+requires:
+  - ./test/support/mutant.rb
+
+matcher:
+  subjects:
+    - ApplicationController*
+    - ArtistsController*
+    - HistoryController*
+    - LikesController*
+    - PagesController*
+    - PlaylistEntriesController*
+    - PlaylistsController*
+    - TracksController*
+    - ApplicationHelper*
+    - Artist
+    - Track
+
+coverage_criteria:
+  timeout: true
+  process_abort: true
+
+hooks:
+  - ./config/mutant.rb

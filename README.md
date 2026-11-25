@@ -49,4 +49,13 @@ The same snapshot includes the Videos tabs of [Persian Instrumental Music](https
 
 Run `bin/ci` before opening a pull request. It checks Standard Ruby, Reek, Rubydex, and import-map dependencies, then runs the Rails tests with 100% line and branch coverage required in `app` and `lib`. It also imports the full catalog twice to check that IDs and private libraries survive reseeding. It uses disposable SQLite databases.
 
+The separate **Mutation Tests** workflow runs Mutant against the subjects in `config/mutant.yml` and fails if any mutations survive. To run it locally, refresh the SimpleCov test map first:
+
+```sh
+RAILS_ENV=test bin/rails db:test:prepare test
+bundle exec mutant run --selection context_map
+```
+
+Add `--fail-fast` when working through survivors one at a time. Use `assert_true`, `assert_false`, or `assert_eql` when the exact value or type is part of the contract.
+
 Not deployed.
