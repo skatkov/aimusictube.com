@@ -1,22 +1,18 @@
-# Run using bin/ci
+require "tmpdir"
 
-CI.run do
-  step "Setup", "bin/setup --skip-server"
+Dir.mktmpdir("ai-music-tube-ci") do |dir|
+  ENV["RAILS_ENV"] = "test"
+  ENV["DATABASE_URL"] = "sqlite3:#{dir}/tests.sqlite3"
 
-  step "Style: Ruby", "bin/rubocop"
+  CI.run do
+    step "Dependencies", "bundle check"
+    step "Style: Ruby", "bin/rubocop"
+    step "Security: Importmap vulnerability audit", "bin/importmap audit"
+    step "Test schema", "bin/rails db:schema:load"
+    step "Tests: Rails", "bin/rails test"
 
-  step "Security: Importmap vulnerability audit", "bin/importmap audit"
-  step "Tests: Rails", "bin/rails test"
-  step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
-
-  # Optional: Run system tests
-  # step "Tests: System", "bin/rails test:system"
-
-  # Optional: set a green GitHub commit status to unblock PR merge.
-  # Requires the `gh` CLI and `gh extension install basecamp/gh-signoff`.
-  # if success?
-  #   step "Signoff: All systems go. Ready for merge and deploy.", "gh signoff"
-  # else
-  #   failure "Signoff: CI failed. Do not merge or deploy.", "Fix the issues and try again."
-  # end
+    ENV["DATABASE_URL"] = "sqlite3:#{dir}/seeds.sqlite3"
+    step "Seed schema", "bin/rails db:schema:load"
+    step "Tests: Reseeding preserves libraries", "bin/rails runner script/check_seeds.rb"
+  end
 end
