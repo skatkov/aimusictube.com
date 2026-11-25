@@ -25,6 +25,7 @@ export default class extends Controller {
 
   syncMenu() {
     const drawer = matchMedia("(max-width: 1100px)").matches
+    if (!drawer && this.drawerTarget.open) this.drawerTarget.close()
     this.menuButtonTarget.setAttribute("aria-controls", drawer ? "navigation-drawer" : "navigation-rail")
     this.menuButtonTarget.setAttribute("aria-expanded", drawer ? this.drawerTarget.open : !document.documentElement.classList.contains("mini-rail"))
   }
