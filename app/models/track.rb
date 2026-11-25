@@ -7,6 +7,7 @@ class Track < ApplicationRecord
   validates :title, :genre, :duration, :evidence, presence: true
   validates :kind, inclusion: { in: LABELS.keys + %w[disclosed unverified] }
   validates :evidence_url, format: { with: /\Ahttps:\/\/[a-z0-9.-]+(?:[\/?#][^\s]*)?\z/i }
+  before_save { self.search_text = "#{title}\n#{genre}".downcase(:fold) }
 
   def youtube_url
     "https://www.youtube.com/watch?v=#{youtube_id}"

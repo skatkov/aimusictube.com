@@ -4,6 +4,7 @@ class Artist < ApplicationRecord
   validates :name, presence: true
   validates :channel_id, format: { with: /\AUC[A-Za-z0-9_-]{22}\z/ }
   validates :starsinger_id, format: { with: /\A[a-z0-9]{32}\z/ }, allow_nil: true
+  before_save { self.search_name = name.downcase(:fold) }
 
   def youtube_url
     "https://www.youtube.com/channel/#{channel_id}"

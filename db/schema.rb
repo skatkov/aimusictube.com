@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_25_000004) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_25_000005) do
   create_table "artist_submissions", force: :cascade do |t|
     t.string "youtube_url", null: false
     t.text "notes"
@@ -23,6 +23,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_000004) do
     t.string "channel_id", null: false
     t.string "avatar_url"
     t.string "starsinger_id"
+    t.string "search_name", default: "", null: false
     t.index ["channel_id"], name: "index_artists_on_channel_id", unique: true, where: "starsinger_id IS NULL"
     t.index ["starsinger_id"], name: "index_artists_on_starsinger_id", unique: true
   end
@@ -69,6 +70,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_25_000004) do
     t.text "evidence", null: false
     t.string "evidence_url", null: false
     t.integer "play_count", default: 0, null: false
+    t.text "search_text", default: "", null: false
     t.index ["artist_id"], name: "index_tracks_on_artist_id"
     t.index ["youtube_id"], name: "index_tracks_on_youtube_id", unique: true
   end

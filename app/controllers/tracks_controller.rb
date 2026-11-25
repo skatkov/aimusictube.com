@@ -12,8 +12,8 @@ class TracksController < ApplicationController
     @tracks = @tracks.where(kind: @kind) if @kind
     @tracks = @tracks.order(play_count: :desc) if @sort
     if @query.present?
-      term = "%#{Track.sanitize_sql_like(@query, "!")}%"
-      @tracks = @tracks.where("tracks.title LIKE :q ESCAPE '!' OR artists.name LIKE :q ESCAPE '!' OR tracks.genre LIKE :q ESCAPE '!'", q: term).order(:title, :id)
+      term = "%#{Track.sanitize_sql_like(@query.downcase(:fold), "!")}%"
+      @tracks = @tracks.where("tracks.search_text LIKE :q ESCAPE '!' OR artists.search_name LIKE :q ESCAPE '!'", q: term).order(:title, :id)
     else
       # Mix artists so a run of uploads from one channel doesn't fill the front page.
       @tracks = @tracks.order(Arel.sql("ROW_NUMBER() OVER (PARTITION BY tracks.artist_id ORDER BY tracks.id), tracks.id"))

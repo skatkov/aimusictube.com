@@ -23,6 +23,17 @@ class CatalogTest < ActionDispatch::IntegrationTest
     assert_select ".track", count: 0
   end
 
+  test "search folds Unicode for artist names, titles, and genres after edits" do
+    @artist.update!(name: "Паша Техник")
+    @track.update!(title: "Straße", genre: "Électronique")
+    [ "паша техник", "STRASSE", "éLECTRONIQUE" ].each do |query|
+      get root_path(q: query)
+      assert_select ".track h2", text: "Straße", count: 1
+    end
+    get root_path(q: "Test Artist")
+    assert_select ".track", count: 0
+  end
+
   test "shows artists and the source of a disclosure" do
     get artists_path
     assert_select "main a[href=?] strong", artist_path(@artist), @artist.name
