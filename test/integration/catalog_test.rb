@@ -210,6 +210,20 @@ class CatalogTest < ActionDispatch::IntegrationTest
     assert_select ".track", count: 0
   end
 
+  test "creating a playlist does not write its name to request or SQL logs" do
+    output = StringIO.new
+    sink = ActiveSupport::Logger.new(output)
+    Rails.logger.broadcast_to(sink)
+    name = "Private name #{SecureRandom.hex(8)}"
+    post playlists_path, params: { playlist: { name: name } }
+    assert_response :redirect
+    assert_includes output.string, "Parameters:"
+    assert_includes output.string, "INSERT INTO"
+    assert_not_includes output.string, name
+  ensure
+    Rails.logger.stop_broadcasting_to(sink)
+  end
+
   test "creates playlists, adds a track once, and prevents access from a different browser" do
     post playlists_path, params: { playlist: { name: " " } }
     assert_response :unprocessable_content
