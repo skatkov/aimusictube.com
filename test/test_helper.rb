@@ -1,4 +1,4 @@
-unless ENV["MUTANT"] || defined?(Mutant)
+if ENV["SIMPLECOV"] == "1" && !defined?(Mutant)
   require "simplecov"
   SimpleCov.start
 end

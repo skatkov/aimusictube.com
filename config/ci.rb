@@ -15,6 +15,9 @@ Dir.mktmpdir("ai-music-tube-ci") do |dir|
 
     ENV["DATABASE_URL"] = "sqlite3:#{dir}/tests.sqlite3"
     step "Test schema", "bin/rails db:schema:load"
-    step "Tests: Minitest and SimpleCov", "bin/rails test"
+    step "Tests: Minitest and SimpleCov", "env SIMPLECOV=1 bin/rails test"
+    if ARGV.include?("--mutant") && success?
+      step "Tests: Mutant", "bundle exec mutant run --selection context_map"
+    end
   end
 end

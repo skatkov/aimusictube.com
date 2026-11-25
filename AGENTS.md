@@ -5,12 +5,10 @@ You are working in a Ruby on Rails project that uses mutation testing, line and 
 Maintain 100% line and branch coverage (overall and per file) and 100% mutation coverage for all configured subjects. Run SimpleCov before Mutant so Mutant uses a fresh per-test coverage map:
 
 ```sh
-bin/ci
-RAILS_ENV=test bin/rails db:test:prepare test
-bundle exec mutant run --selection context_map
+bin/ci --mutant
 ```
 
-When working through surviving mutations, use `--fail-fast` to address one at a time. Add `--since origin/main` to focus on changed code while iterating, but run the full configured suite before declaring the gate green.
+When working through surviving mutations, run `RAILS_ENV=test SIMPLECOV=1 bin/rails db:test:prepare test`, then `bundle exec mutant run --fail-fast --selection context_map`. Add `--since origin/main` to focus on changed code while iterating, but run the full configured suite before declaring the gate green.
 
 ## When you find a surviving mutation
 

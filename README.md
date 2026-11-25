@@ -51,10 +51,10 @@ The same snapshot includes the Videos tabs of [Persian Instrumental Music](https
 
 Run `bin/ci` before opening a pull request. It checks Standard Ruby, Reek, Rubydex, and import-map dependencies first. It then checks that the full catalog can be reimported without changing IDs or private libraries, and runs Minitest with 100% line and branch coverage required in `app` and `lib`. It uses disposable SQLite databases.
 
-In GitHub Actions, the **mutant** job starts only after the **quality** job passes. It records a fresh per-test coverage map, then runs Mutant against the subjects in `config/mutant.yml` and fails if any mutations survive. To run it locally:
+GitHub Actions runs `bin/ci --mutant`. Mutant runs last, only after all earlier checks pass, and reuses the coverage map from that test run. Plain `bin/rails test` and focused test runs do not enforce full-suite coverage. To iterate on mutations locally:
 
 ```sh
-RAILS_ENV=test bin/rails db:test:prepare test
+RAILS_ENV=test SIMPLECOV=1 bin/rails db:test:prepare test
 bundle exec mutant run --selection context_map
 ```
 
