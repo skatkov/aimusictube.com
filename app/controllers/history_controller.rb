@@ -1,3 +1,4 @@
+# Displays and clears this browser's playback history.
 class HistoryController < ApplicationController
   def show
     @title = "History"

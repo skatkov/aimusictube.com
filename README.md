@@ -47,6 +47,6 @@ The same snapshot includes the Videos tabs of [Persian Instrumental Music](https
 
 ## Checks
 
-Run `bin/ci` before opening a pull request. It runs the Rails tests, RuboCop, and the import-map audit, then imports the full catalog twice to check that IDs and private libraries survive reseeding. It uses disposable SQLite databases.
+Run `bin/ci` before opening a pull request. It checks Standard Ruby, Reek, Rubydex, and import-map dependencies, then runs the Rails tests with 100% line and branch coverage required in `app` and `lib`. It also imports the full catalog twice to check that IDs and private libraries survive reseeding. It uses disposable SQLite databases.
 
 Not deployed.

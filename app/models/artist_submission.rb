@@ -1,2 +1,0 @@
-class ArtistSubmission < ApplicationRecord
-end

@@ -6,10 +6,12 @@ Dir.mktmpdir("ai-music-tube-ci") do |dir|
 
   CI.run do
     step "Dependencies", "bundle check"
-    step "Style: Ruby", "bin/rubocop"
+    step "Style: Standard Ruby", "bundle exec standardrb --no-fix"
+    step "Quality: Reek", "bundle exec reek ."
+    step "Quality: Rubydex", "bundle exec ruby script/check_rubydex.rb"
     step "Security: Importmap vulnerability audit", "bin/importmap audit"
     step "Test schema", "bin/rails db:schema:load"
-    step "Tests: Rails", "bin/rails test"
+    step "Tests: Rails and SimpleCov", "bin/rails test"
 
     ENV["DATABASE_URL"] = "sqlite3:#{dir}/seeds.sqlite3"
     step "Seed schema", "bin/rails db:schema:load"

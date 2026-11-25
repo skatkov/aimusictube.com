@@ -1,3 +1,4 @@
+# Renders the shared navigation and artist avatars.
 module ApplicationHelper
   def icon(name)
     tag.svg(viewBox: "0 0 24 24", class: "icon", "aria-hidden": true, focusable: false) do
@@ -11,7 +12,8 @@ module ApplicationHelper
   end
 
   def channel_avatar(artist)
-    content = artist.avatar_url.present? ? image_tag(artist.avatar_url, alt: "", loading: "lazy", referrerpolicy: "no-referrer") : artist.name.first
+    avatar_url = artist.avatar_url
+    content = avatar_url.present? ? image_tag(avatar_url, alt: "", loading: "lazy", referrerpolicy: "no-referrer") : artist.name.first
     tag.span(content, class: "avatar", aria: { hidden: true })
   end
 

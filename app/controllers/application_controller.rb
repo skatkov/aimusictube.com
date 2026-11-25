@@ -1,3 +1,4 @@
+# Shares browser-scoped library access and pagination across catalog pages.
 class ApplicationController < ActionController::Base
   PAGE_SIZE = 48
 

@@ -1,3 +1,4 @@
+# Renders the catalog statistics and tag directory.
 class PagesController < ApplicationController
   def about
     @track_count = Track.count

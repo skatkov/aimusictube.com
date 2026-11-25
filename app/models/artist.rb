@@ -1,3 +1,4 @@
+# A catalog artist or YouTube channel with a browsable discography.
 class Artist < ApplicationRecord
   has_many :tracks
 

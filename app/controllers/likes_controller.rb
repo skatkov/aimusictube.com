@@ -1,3 +1,4 @@
+# Manages tracks liked by this browser.
 class LikesController < ApplicationController
   def index
     @title = "Liked tracks"

@@ -1,3 +1,4 @@
+# Manages playlists owned by this browser.
 class PlaylistsController < ApplicationController
   before_action :load_track, only: %i[index create]
 

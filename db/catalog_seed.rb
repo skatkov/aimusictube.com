@@ -1,3 +1,4 @@
+# Validates and imports catalog records without replacing their IDs.
 class CatalogSeed
   def import(entries)
     raise ArgumentError, "Expected a nonempty list of artists" unless entries.is_a?(Array) && entries.any?
@@ -9,7 +10,7 @@ class CatalogSeed
         rows = entry.fetch("tracks")
         raise ArgumentError, "Expected tracks for #{entry['name']}" unless rows.is_a?(Array) && rows.any?
         defaults = entry.slice("genre", "credit")
-        check_credit!(defaults.fetch("credit")) if defaults.key?("credit")
+        validate_credit(defaults.fetch("credit")) if defaults.key?("credit")
         artist = catalog_artist(entry.except("genre", "credit", "tracks"), profiles)
         rows.each { |row| catalog_track(artist, defaults.merge(row), uploads) }
       end
@@ -37,13 +38,13 @@ class CatalogSeed
     raise ArgumentError, "Duplicate YouTube ID #{youtube_id}: #{uploads[youtube_id]} and #{owner}" if uploads.key?(youtube_id)
     uploads[youtube_id] = owner
 
-    check_credit!(credit)
+    validate_credit(credit)
     track = Track.find_or_initialize_by(youtube_id: youtube_id)
     track.update!(artist: artist, title: title, duration: duration, genre: genre, kind: credit.fetch("kind"),
       evidence: credit.fetch("evidence"), evidence_url: credit.fetch("evidence_url") { track.youtube_url })
   end
 
-  def check_credit!(credit)
+  def validate_credit(credit)
     credit.assert_valid_keys("kind", "evidence", "evidence_url")
     credit.fetch_values("kind", "evidence")
   end

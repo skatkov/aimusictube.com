@@ -1,0 +1,51 @@
+---
+detectors:
+  IrresponsibleModule:
+    exclude:
+      - "AiMusicTube::Application"
+  ControlParameter:
+    exclude:
+      - "ApplicationHelper#nav_link"
+  FeatureEnvy:
+    exclude:
+      - "ApplicationHelper#channel_avatar"
+      - "CatalogSeed#catalog_artist"
+      - "CatalogSeed#catalog_track"
+  LongParameterList:
+    exclude:
+      - "ApplicationHelper#nav_link"
+  NestedIterators:
+    exclude:
+      - "CatalogSeed#import"
+  TooManyStatements:
+    exclude:
+      - "CatalogSeed#import"
+      - "CatalogSeed#catalog_artist"
+      - "CatalogSeed#catalog_track"
+      - "TracksController#index"
+      - "TracksController#play"
+  UtilityFunction:
+    exclude:
+      - "CatalogSeed#validate_credit"
+
+directories:
+  "app/controllers":
+    # Action methods populate view assigns rather than initializing shared state.
+    InstanceVariableAssumption:
+      enabled: false
+    TooManyInstanceVariables:
+      enabled: false
+  "test":
+    IrresponsibleModule:
+      enabled: false
+    UtilityFunction:
+      enabled: false
+    TooManyStatements:
+      max_statements: 30
+    LongParameterList:
+      max_params: 8
+
+exclude_paths:
+  - db/migrate
+  - vendor
+  - tmp

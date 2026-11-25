@@ -1,3 +1,4 @@
+# Adds and removes tracks in this browser's playlists.
 class PlaylistEntriesController < ApplicationController
   def create
     track = Track.find(params[:track_id])

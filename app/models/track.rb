@@ -1,3 +1,4 @@
+# A YouTube upload with catalog metadata and AI-use evidence.
 class Track < ApplicationRecord
   LABELS = { "generated" => "AI-generated", "assisted" => "AI-assisted" }.freeze
 

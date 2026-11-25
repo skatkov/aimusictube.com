@@ -1,3 +1,4 @@
+# Lists artists and their discographies.
 class ArtistsController < ApplicationController
   def index
     @artists = Artist.order(:name)

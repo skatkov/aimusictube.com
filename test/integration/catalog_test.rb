@@ -36,9 +36,11 @@ class CatalogTest < ActionDispatch::IntegrationTest
   end
 
   test "shows artists and the source of a disclosure" do
+    @artist.update!(avatar_url: "https://example.com/avatar.jpg")
     empty_artist = Artist.create!(name: "No uploads yet", channel_id: "UC1111111111111111111111")
     get artists_path
     assert_select "main a[href=?] strong", artist_path(@artist), @artist.name
+    assert_select "main a[href=?] .avatar img[src=?]", artist_path(@artist), @artist.avatar_url
     assert_select "main a[href=?] small", artist_path(@artist), "1 track"
     assert_select "main a[href=?] small", artist_path(empty_artist), "0 tracks"
     get artist_path(@artist)
@@ -79,8 +81,8 @@ class CatalogTest < ActionDispatch::IntegrationTest
   end
 
   test "feed pages preserve search, filter, ranking and total across the page boundary" do
-    TracksController::PAGE_SIZE.times do |n|
-      @track.dup.update!(youtube_id: format("X%010d", n), play_count: n + 1)
+    TracksController::PAGE_SIZE.times do |index|
+      @track.dup.update!(youtube_id: format("X%010d", index), play_count: index + 1)
     end
     filters = { q: @artist.name, kind: "assisted", genre: @track.genre, sort: "most_played" }
     get root_path(filters)
@@ -114,11 +116,13 @@ class CatalogTest < ActionDispatch::IntegrationTest
   test "artist, history, likes and playlist links page through the same scoped results" do
     post playlists_path, params: { playlist: { name: "All my tracks" } }
     playlist = Playlist.sole
-    tracks = [ @track ] + Array.new(ApplicationController::PAGE_SIZE) { |n| @track.dup.tap { |t| t.update!(youtube_id: format("P%010d", n)) } }
-    tracks.each_with_index do |track, n|
+    tracks = [@track] + Array.new(ApplicationController::PAGE_SIZE) do |index|
+      @track.dup.tap { |copy| copy.update!(youtube_id: format("P%010d", index)) }
+    end
+    tracks.each_with_index do |track, index|
       playlist.playlist_entries.create!(track: track)
       Like.create!(browser_key: playlist.browser_key, track: track)
-      Play.create!(browser_key: playlist.browser_key, track: track, opened_at: Time.utc(2026) + n)
+      Play.create!(browser_key: playlist.browser_key, track: track, opened_at: Time.utc(2026) + index)
     end
 
     { artist_path(@artist) => tracks.last, playlist_path(playlist) => tracks.last, liked_path => tracks.first, history_path => tracks.first }.each do |path, remaining|
@@ -134,9 +138,9 @@ class CatalogTest < ActionDispatch::IntegrationTest
   end
 
   test "home gives each artist a slot and the tag directory filters the feed" do
-    @track.dup.tap { |t| t.update!(youtube_id: "BcDe2345_-z", title: "Another track") }
+    @track.dup.tap { |copy| copy.update!(youtube_id: "BcDe2345_-z", title: "Another track") }
     second = Artist.create!(name: "Second Artist", channel_id: "UC1111111111111111111111")
-    rock = @track.dup.tap { |t| t.update!(artist: second, youtube_id: "CdEf3456_-z", title: "Rock recording", genre: "Rock") }
+    rock = @track.dup.tap { |copy| copy.update!(artist: second, youtube_id: "CdEf3456_-z", title: "Rock recording", genre: "Rock") }
 
     get root_path
     assert_equal [ @track.title, rock.title, "Another track" ], css_select(".track h2").map(&:text)
@@ -151,14 +155,14 @@ class CatalogTest < ActionDispatch::IntegrationTest
   end
 
   test "old jazz mix bookmarks open the broader Mixes filter" do
-    mix = @track.dup.tap { |t| t.update!(youtube_id: "CdEf3456_-z", genre: "Mixes", title: "Night mix") }
+    mix = @track.dup.tap { |copy| copy.update!(youtube_id: "CdEf3456_-z", genre: "Mixes", title: "Night mix") }
     get root_path, params: { genre: "Jazz mixes" }
     assert_select ".track h2", count: 1, text: mix.title
     assert_select ".result-count strong", "Mixes"
   end
 
   test "most played ranks site play clicks and is independent of private history" do
-    favorite = @track.dup.tap { |t| t.update!(youtube_id: "BcDe2345_-z", title: "Zebra") }
+    favorite = @track.dup.tap { |copy| copy.update!(youtube_id: "BcDe2345_-z", title: "Zebra") }
     get watch_path(@track.youtube_id)
     assert_equal 0, @track.reload.play_count
     post play_track_path(favorite), headers: { "Turbo-Frame" => "player_track_#{favorite.id}" }
@@ -205,19 +209,31 @@ class CatalogTest < ActionDispatch::IntegrationTest
   end
 
   test "likes are private, idempotent and removable" do
+    other_track = @track.dup
+    other_track.update!(youtube_id: "BcDe2345_-z", title: "Another track")
     2.times { post track_like_path(@track) }
     assert_response :see_other
+    assert_redirected_to watch_path(@track.youtube_id)
+    assert_true Like.exists?(track: @track)
     get liked_path
-    assert_select ".track", count: 1
+    assert_select "main h1", "Liked tracks"
+    assert_select ".track h2", text: @track.title, count: 1
 
     open_session do |other|
       other.get liked_path
       other.assert_select ".track", count: 0
+      other.post track_like_path(@track)
     end
 
+    post track_like_path(other_track)
     delete track_like_path(@track)
+    assert_response :see_other
+    assert_redirected_to watch_path(@track.youtube_id)
     get liked_path
-    assert_select ".track", count: 0
+    assert_select ".track h2", text: @track.title, count: 0
+    assert_select ".track h2", text: other_track.title, count: 1
+    assert_true Like.exists?(track: @track), "The other browser's like must survive"
+    assert_false Like.exists?(track: @track, browser_key: Like.find_by!(track: other_track).browser_key)
   end
 
   test "play loads an embedded player on demand and direct opens still redirect" do
@@ -245,17 +261,21 @@ class CatalogTest < ActionDispatch::IntegrationTest
     assert_redirected_to @track.youtube_url
     assert_operator Play.sole.opened_at, :>, previous_open
     get history_path
+    assert_select "main h1", "History"
     assert_select ".track h2", @track.title
-    assert_equal 1, Play.count
+    assert_eql 1, Play.count
 
     open_session do |other|
       other.get history_path
       other.assert_select ".track", count: 0
       other.delete history_path
     end
-    assert_equal 1, Play.count
+    assert_eql 1, Play.count
 
     delete history_path
+    assert_response :see_other
+    assert_redirected_to history_path
+    assert_false Play.exists?(track: @track)
     get history_path
     assert_select ".track", count: 0
   end

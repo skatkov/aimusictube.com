@@ -1,9 +1,12 @@
+# Browses tracks and records playback requests.
 class TracksController < ApplicationController
   def index
     @query = params[:q].to_s.strip.first(100)
-    genre = params[:genre] == "Jazz mixes" ? "Mixes" : params[:genre]
+    genre = params[:genre]
+    genre = "Mixes" if genre == "Jazz mixes"
     @genre = genre if genre.is_a?(String) && Track.exists?(genre: genre)
-    @kind = params[:kind] if Track::LABELS.key?(params[:kind])
+    kind = params[:kind]
+    @kind = kind if Track::LABELS.key?(kind)
     @sort = "most_played" if params[:sort] == "most_played"
     @tracks = Track.includes(:artist)
     @tracks = @tracks.where(genre: @genre) if @genre
