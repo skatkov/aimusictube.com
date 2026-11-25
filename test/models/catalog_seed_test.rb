@@ -2,31 +2,50 @@ require "test_helper"
 require_relative "../../db/catalog_seed"
 
 class CatalogSeedTest < ActiveSupport::TestCase
+  setup do
+    @seed = CatalogSeed.new
+    @track = { "youtube_id" => "a1234567890", "title" => "Original", "duration" => "3:12" }
+    @artist = { "name" => "First artist", "channel_id" => "UC#{'a' * 22}", "genre" => "Pop",
+      "credit" => { "kind" => "assisted", "evidence" => "Artist credit", "evidence_url" => "https://example.com/credits" },
+      "tracks" => [ @track ] }
+  end
+
   test "a duplicate within an import names both entries and rolls back the whole import" do
-    seed = CatalogSeed.new
-    track = { "youtube_id" => "a1234567890", "title" => "Original", "duration" => "3:12" }
-    first = { "name" => "First artist", "channel_id" => "UC#{'a' * 22}", "genre" => "Pop",
-      "credit" => { "kind" => "assisted", "evidence" => "Artist credit" }, "tracks" => [ track ] }
-    seed.import([ first ])
+    @seed.import([ @artist ])
     error = assert_raises(ArgumentError) do
-      seed.import([ first.merge("tracks" => [ track.merge("title" => "Changed") ]),
-        first.merge("name" => "Second artist", "channel_id" => "UC#{'b' * 22}") ])
+      @seed.import([ @artist.merge("tracks" => [ @track.merge("title" => "Changed") ]),
+        @artist.merge("name" => "Second artist", "channel_id" => "UC#{'b' * 22}") ])
     end
-    [ track.fetch("youtube_id"), "First artist", "Changed", "Second artist" ].each { |value| assert_includes error.message, value }
+    [ @track.fetch("youtube_id"), "First artist", "Changed", "Second artist" ].each { |value| assert_includes error.message, value }
     assert_equal "Original", Track.sole.title
     assert_equal "First artist", Artist.sole.name
   end
 
   test "a track credit replaces the whole shared credit, including its source" do
-    common = { "youtube_id" => "a1234567890", "title" => "Shared credit", "duration" => "3:12" }
-    exception = common.merge("youtube_id" => "b1234567890", "title" => "Different credit", "genre" => "Rock",
+    exception = @track.merge("youtube_id" => "b1234567890", "title" => "Different credit", "genre" => "Rock",
       "credit" => { "kind" => "unverified", "evidence" => "No audio credit on this upload" })
-    CatalogSeed.new.import([ { "name" => "Artist", "channel_id" => "UC#{'a' * 22}", "genre" => "Pop",
-      "credit" => { "kind" => "assisted", "evidence" => "Artist credit", "evidence_url" => "https://example.com/credits" },
-      "tracks" => [ common, exception ] } ])
+    @seed.import([ @artist.merge("tracks" => [ @track, exception ]) ])
 
     shared, unique = Track.order(:id)
     assert_equal [ "Pop", "assisted", "Artist credit", "https://example.com/credits" ], [ shared.genre, shared.kind, shared.evidence, shared.evidence_url ]
     assert_equal [ "Rock", "unverified", "No audio credit on this upload", unique.youtube_url ], [ unique.genre, unique.kind, unique.evidence, unique.evidence_url ]
+  end
+
+  test "misspelled profile, track and source keys cannot silently inherit other values" do
+    credit = { "kind" => "generated", "evidence" => "Upload credit", "evidence_uri" => "https://example.com/song" }
+    [ @artist.merge("starsingerID" => "b" * 32),
+      @artist.merge("tracks" => [ @track.merge("credits" => credit) ]),
+      @artist.merge("tracks" => [ @track.merge("credit" => credit) ]) ].each do |bad|
+      assert_raises(ArgumentError) { @seed.import([ bad ]) }
+    end
+    assert_empty Artist.all
+    assert_empty Track.all
+  end
+
+  test "a second block of uploads cannot overwrite the same artist's identity" do
+    later = @artist.merge("name" => "Wrong artist", "tracks" => [ @track.merge("youtube_id" => "b1234567890") ])
+    error = assert_raises(ArgumentError) { @seed.import([ @artist, later ]) }
+    assert_includes error.message, @artist.fetch("channel_id")
+    assert_empty Track.all
   end
 end
