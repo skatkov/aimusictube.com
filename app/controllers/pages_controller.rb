@@ -1,6 +1,6 @@
 class PagesController < ApplicationController
   def about
-    @disclosure_counts = Track.group(:kind).count
+    @track_count = Track.count
     @genre_count = Track.distinct.count(:genre)
     @artist_count = Artist.count
   end

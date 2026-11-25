@@ -13,7 +13,7 @@ bin/rails db:seed
 bin/rails server
 ```
 
-Open <http://localhost:3000>. [About](http://localhost:3000/about) shows live artist, upload, tag, and disclosure counts. [Tags](http://localhost:3000/tags) lists filters, including **Mixes**, with their catalog totals. The desktop sidebar remembers its size in this browser. No YouTube API key or login is required.
+Open <http://localhost:3000>. [About](http://localhost:3000/about) shows live artist, upload, and tag counts. [Tags](http://localhost:3000/tags) lists filters, including **Mixes**, with their catalog totals. The desktop sidebar remembers its size in this browser. No YouTube API key or login is required.
 
 Select the play icon on a track page to load the embedded player. If an upload or browser blocks it, use **Watch on YouTube**. **History** records a play click or a direct open, not whether you listened. Create a playlist from **Playlists** or use **Save** on a track page. Likes, history, and playlists are stored in SQLite and attached to this browser by an encrypted Rails cookie. They do not sync; clearing the cookie loses access to that library.
 

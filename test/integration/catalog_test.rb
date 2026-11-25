@@ -75,9 +75,8 @@ class CatalogTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "header a[href=?][aria-current=page]", about_path
     assert_select "main h1", "About AI Music Tube"
-    assert_select ".about-stats dd", text: "1", count: 2
-    assert_select ".disclosure-counts div", text: /AI-assisted\s+1/
-    assert_select ".disclosure-counts div", count: 2
+    totals = css_select(".about-stats div").to_h { |row| [ row.at_css("dt").text, row.at_css("dd").text ] }
+    assert_equal({ "YouTube uploads" => "1", "Artists and channels" => "1", "Catalog tags" => "3" }, totals)
     assert_select "main a[href=?]", root_path, "Browse the catalog"
     assert_select "main p", /isn’t affiliated with or endorsed by YouTube or Google/
     assert_select "footer", /Built by GPT-6\.2 Sol and @5katkov on X/
