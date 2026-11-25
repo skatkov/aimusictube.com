@@ -35,6 +35,8 @@ Preserve the existing order and `starsinger_id` values: distinct artists can sha
 
 The [catalog JSON Schema](db/catalog.schema.json) checks the structure, field types, ID formats, and required genre and credit before the seed writes anything. Run `bin/ci` to validate the actual file and import it twice into a disposable database. These checks do not verify that YouTube still serves the upload or that a source supports its credit.
 
+CI also compares upload IDs and artist ownership with the base revision. Additions and metadata edits are fine; removing an existing upload, replacing its ID, or moving it to another artist requires a separately reviewed data migration. Run `CATALOG_BASE=origin/main bin/ci` to check a proposed revision locally.
+
 [Kelly Boesch’s music films](https://www.youtube.com/playlist?list=PLT26wpyuKBpMf99VVaNuCmYeUXcTOQEwJ) and the multi-channel [AI Covers of Popular Songs playlist](https://www.youtube.com/playlist?list=PLReI40KGodv6r0WRDxNJwM1MkBcoN3Gox) are discovery sources for the catalog. The source note for Moon Tunes’ [*Whiskey Blues* mix](https://www.youtube.com/watch?v=knFceIUXCXU) quotes the watch page’s “How this was made” panel.
 
 The November 25, 2026 snapshot includes all 84 videos on [Moon Tunes’ Videos tab](https://www.youtube.com/@moontunes1/videos) and all 296 mixes on [Oldies Jazz Lounge’s Videos tab](https://www.youtube.com/@OldiesJazzLounge/videos). SerpApi YouTube Music search results were matched by video ID to the paginated SerpApi YouTube Channel listings, and each upload was checked with YouTube oEmbed. Moon Tunes’ five Shorts are not counted as separate recordings. Oldies Jazz Lounge’s mixes are listed as reader picks; the channel does not give a channel-wide AI music credit.

@@ -12,6 +12,9 @@ Dir.mktmpdir("ai-music-tube-ci") do |dir|
     ENV["DATABASE_URL"] = "sqlite3:#{dir}/seeds.sqlite3"
     step "Seed schema", "bin/rails db:schema:load"
     step "Catalog: Validate JSON and check reseeding preserves libraries", "bin/rails runner script/check_seeds.rb"
+    unless ENV["CATALOG_BASE"].to_s.match?(/\A0*\z/)
+      step "Catalog: Preserve existing upload identities", "bundle exec ruby script/check_catalog_revision.rb"
+    end
 
     ENV["DATABASE_URL"] = "sqlite3:#{dir}/tests.sqlite3"
     step "Test schema", "bin/rails db:schema:load"
